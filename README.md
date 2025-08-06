@@ -28,6 +28,33 @@ graph TD;
    E-->F((Table))
 
 ```
+#### Cell Bounding Box Detection (using LORE-TSR)
+
+
+#### Handwritten Text Recognition (using Loghi)
+
+- Create the environment from the htr_env.yml file:
+   ```bash
+   conda env create -f htr_env.yml
+   ```
+- Pull loghi repo here 
+   ```bash
+   git clone git@github.com:knaw-huc/loghi.git
+   ```
+- Pull all the docker containers as per instructions
+   ```bash
+   docker pull loghi/docker.laypa
+   docker pull loghi/docker.htr
+   docker pull loghi/docker.loghi-tooling
+   ```
+- Go to: https://surfdrive.surf.nl/files/index.php/s/YA8HJuukIUKznSP and download 
+   - a laypa model ("general") for detection of baselines and 
+   - a loghi-htr model("float32-generic-2023-02-15") for HTR.
+- Specify the parameter paths accordingly in `loghi/scripts/inference-pipeline.sh` (see original documentation of loghi)
+- Run loghi to do HTR on table images
+   ```
+   python src/run_loghi.py
+   ```
 
 ---
 
