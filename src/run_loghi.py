@@ -4,11 +4,11 @@ import shutil
 import time
 import subprocess
 
-# Define paths
-source_folder = '../stamboek_906'  # Folder where the images are initially located
+# DEFINE PATHS
+source_folder = '../samples'  # Folder where the images are initially located
 destination_folder = '../image_samples'  # Folder where the image will be moved
 bash_script = 'scripts/inference-pipeline.sh'  # Path to your bash script
-base_name = 'NL-HaNA_2.10.36.22_906_'  # Base name for image
+
 
 
 # Function to copy the image
@@ -65,7 +65,7 @@ def delete_image(image_name):
 
 
 # Main loop to repeat the steps
-def main():
+def run_loghi_for_entire_folio(base_name):
     for i in range(77, 267):  # Loop from 0004 to 0266
         image_name = f"{base_name}{str(i).zfill(4)}"  # Format the counter with leading zeros
         image_name += '.jpg'  # Assuming the images are in .jpg format
@@ -82,6 +82,27 @@ def main():
         # Pause for a moment before moving to the next image
         time.sleep(5)  # Adjust the sleep time as needed
 
+def main():
+    # Iterate over all files in the folder
+    for filename in os.listdir(source_folder):
+        # file_path = os.path.join(source_folder, filename)
+        
+        if filename.endswith('.jpg'):
+            image_name = filename
+
+            # Step 1: Copy the image
+            copy_image(image_name)
+
+            # Step 2: Run the bash script
+            run_bash_script()
+
+            # Step 3: Delete the image
+            delete_image(image_name)
+
+            # Pause for a moment before moving to the next image
+            time.sleep(5)  # Adjust the sleep time as needed
+
 
 if __name__ == '__main__':
+    # run_loghi_for_entire_folio(base_name = 'NL-HaNA_2.10.36.22_906_')  # Base name for image
     main()
