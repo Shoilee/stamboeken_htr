@@ -1,3 +1,7 @@
+.vscode/
+samples/
+src/LLM/*
+src/__pycache__/
 stamboek_*/
 */.DS_Store  
 .git/ 
@@ -9,3 +13,6 @@ output/*
 ground_truth.zip
 ground_truth
 bronbeek_stamboeken
+data
+.env
+BoundingBoxDetection
