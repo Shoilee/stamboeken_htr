@@ -16,3 +16,4 @@ bronbeek_stamboeken
 data
 .env
 BoundingBoxDetection
+data/*
