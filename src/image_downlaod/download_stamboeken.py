@@ -6,7 +6,7 @@ import requests
 import openpyxl
 from lxml import etree
 from tqdm import tqdm
-from download_control_book import download_image
+from image_downlaod.download_control_book import download_image
 
 
 def parse_html_content(content):
