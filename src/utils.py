@@ -15,12 +15,17 @@ def check_polygone_overlap(poly1:str, poly2:str, threshold=0.5) -> bool:
     Returns:
         True if A is at least `threshold` inside B, else False
     """
-    polygon1 = Polygon(parse_polygon_string(poly1))
-    polygon2 = Polygon(parse_polygon_string(poly2))
+    try:
+        polygon1 = Polygon(parse_polygon_string(poly1))
+        polygon2 = Polygon(parse_polygon_string(poly2))
+    except Exception as e:
+        print(f"Error parsing polygon string: {e}")
+        return False
 
     if not polygon1.is_valid or not polygon2.is_valid:
-        raise ValueError("One of the polygons is invalid.")
-
+        print("Error: One of the polygons is invalid.")
+        return False
+    
     intersection_area = polygon1.intersection(polygon2).area
     area_1 = polygon1.area
 
@@ -77,7 +82,7 @@ def parse_polygon_string(polygon_str):
             continue
     return coords
 
-def extract_textline(file_path, output_path="output"):
+def extract_textline(file_path, output_path):
     try:
         # Load the XML content (from a file)
         root = etree.parse(file_path)
@@ -95,8 +100,8 @@ def extract_textline(file_path, output_path="output"):
             print(f"No TextEquiv tag found in {file_path}. Logged in image_htr_error.txt.")
             return
 
-        output_file = os.path.splitext(file_path)[0] + ".csv"
-        with open(output_file, "w") as f:
+        output_file = os.path.join(output_path, (os.path.basename(file_path) + ".csv"))
+        with open(output_file, "w+") as f:
             csvwriter = csv.writer(f)
             # Write header row
             csvwriter.writerow(["TextRegion ID", "TextLine ID", "TextRegion Coords", "TextEquiv Text"])
@@ -110,6 +115,8 @@ def extract_textline(file_path, output_path="output"):
                 text_equiv_text = line.find("ns:TextEquiv/ns:PlainText", namespaces={
                     'ns': 'http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15'}).text
                 csvwriter.writerow([text_region_id, text_line_id, text_line_coords, text_equiv_text])
+            
+            return output_file
 
     except etree.XMLSyntaxError:
         print(f"Error parsing {file_path}. File may be malformed.")

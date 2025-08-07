@@ -5,9 +5,9 @@ import time
 import subprocess
 
 # DEFINE PATHS
-source_folder = '../samples'  # Folder where the images are initially located
-destination_folder = '../image_samples'  # Folder where the image will be moved
-bash_script = 'scripts/inference-pipeline.sh'  # Path to your bash script
+source_folder = 'data/images'  # Folder where the images are initially located
+destination_folder = 'data/htr'  # Folder where the image will be moved
+# bash_script = 'scripts/inference-pipeline.sh'  # Path to your bash script
 
 
 
@@ -25,7 +25,7 @@ def copy_image(image_name):
 # Function to run the bash script
 def run_bash_script():
     try:
-        os.chdir("../")
+        # os.chdir("../")
         os.chdir("loghi")
         # TODO: Doesn't work; says "the input device is not a TTY"
         # subprocess.Popen(['%s %s' %(bash_script, os.path.join("..", destination_folder))], shell=True)
@@ -36,7 +36,7 @@ def run_bash_script():
 
         # Call CLI Process
         cmd = "scripts/inference-pipeline.sh " \
-                  "../image_samples"
+                  "../data/htr"
 
         print("[DEBUG]: {}".format(cmd))
         proc = subprocess.Popen(cmd,
@@ -48,9 +48,11 @@ def run_bash_script():
 
         proc.communicate()
         print(f"Successfully ran bash script: {cmd}")
+        os.chdir("../") # Change back to the original directory
         
     except subprocess.CalledProcessError as e:
         print(f"Error running bash script: {e}")
+        os.chdir("../") # Change back to the original directory
 
 
 # Function to delete the image
