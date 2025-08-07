@@ -4,3 +4,7 @@
 [submodule "Image2Table-LLM"]
 	path = Image2Table-LLM
 	url = https://github.com/Shoilee/Image2Table-reconstruction-with-llm.git 
+[submodule "Image2TableBoundingBoxDetection"]
+	path = Image2TableBoundingBoxDetection
+	url = git@github.com:Shoilee/Image2TableBoundingBoxDetection.git
+	ignore = dirty
