@@ -1,6 +1,6 @@
 # Handwritten Table to Knowledge Graph
 
-This project converts handwritten table images into structured Knowledge Graphs (KGs) with **triple-level provenance**.
+This project converts handwritten table images into structured Knowledge Graphs (KGs) with **cell-level provenance**.
 
 ❗ *Research Gap*: End-to-end processing of handwritten tables to structured Knowledge Graphs lacks reliability and traceability.
 
