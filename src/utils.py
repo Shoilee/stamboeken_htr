@@ -122,6 +122,25 @@ def extract_textline(file_path, output_path):
         print(f"Error parsing {file_path}. File may be malformed.")
 
 
+def swap_row_col(file_path):
+    import csv
+    with open(file_path, 'r') as f:
+        reader = csv.reader(f)
+
+        # swap col 0 with col 2 anf col 1 with col 3
+        data = list(reader)
+        swapped_data = []
+        for row in data:
+            if len(row) >= 4:
+                row[0], row[2] = row[2], row[0]
+                row[1], row[3] = row[3], row[1]
+            swapped_data.append(row)
+        output_file = file_path
+        with open(output_file, 'w', newline='') as f_out:
+            writer = csv.writer(f_out)
+            writer.writerows(swapped_data)
+        print(f"Swapped data written to {output_file}")
+
 if __name__ == "__main__":
     # polygon_str1 = "1021,1055 1071,1048 1118,1034 1131,1078 1077,1093 1027,1100" # line region (smaller polygone)
     # polygon_str2 = "1031.3846,974.5904;1122.732,974.5985;1122.7303,1081.7006;1031.3759,1081.7185" # cell region (larger polygone)
