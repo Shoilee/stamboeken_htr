@@ -53,13 +53,15 @@ def add_text_to_cells(cells, cell_texts, wired=False):
 
 
 def build_table_from_cells(cells, output_file):
-    cells = sorted(cells, key=lambda cell: (cell[0], cell[2]))
-    max_row = max(cell[1] for cell in cells) + 1
-    max_col = max(cell[3] for cell in cells) + 1
+    # cells = sorted(cells, key=lambda cell: (cell[0], cell[2]))
+    cells = list(enumerate(cells))
+    cells.sort(key=lambda x: (x[1][0], x[1][2]))
+    max_row = max(cell[1][1] for cell in cells) + 1
+    max_col = max(cell[1][3] for cell in cells) + 1
 
     table = [[None for _ in range(max_col)] for _ in range(max_row)]
 
-    for cell in cells:
+    for idx, cell in cells:
         start_row, end_row, start_col, end_col, content = cell
         rowspan = 1 + end_row - start_row
         colspan = 1 + end_col - start_col
@@ -68,6 +70,9 @@ def build_table_from_cells(cells, output_file):
             for col in range(start_col, end_col + 1):
                 if row == start_row and col == start_col and table[row][col] != "merged":
                     table[row][col] = {
+                        "id": idx,
+                        "row":row,
+                        "col":col,
                         "rowspan": rowspan,
                         "colspan": colspan,
                         "content": content
@@ -88,14 +93,17 @@ def table_to_markup(table):
         markup += "<tr>"
         for cell in row:
             if cell is None:
-                markup += '<td></td>'
+                markup += f'<td></td>'
             elif cell == "merged":
                 continue
             else:
+                idx = cell["id"]
+                row = cell["row"]
+                col = cell["col"]
                 rsp = cell["rowspan"]
                 csp = cell["colspan"]
                 content = cell["content"]
-                markup += f'<td rowspan="{rsp}" colspan="{csp}">{content}</td>'
+                markup += f'<td row={row} col={col} rowspan="{rsp}" colspan="{csp}" id="{idx}">{content}</td>'
         markup += "</tr>"
     markup += "</table>"
     return markup
