@@ -5,3 +5,6 @@
 	path = Image2TableBoundingBoxDetection
 	url = git@github.com:Shoilee/Image2TableBoundingBoxDetection.git
 	ignore = dirty
+[submodule "Image2Table_LLM"]
+	path = Image2Table_LLM
+	url = git@github.com:Shoilee/Image2Table-reconstruction-with-llm.git

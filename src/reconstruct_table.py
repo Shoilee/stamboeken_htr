@@ -1,4 +1,4 @@
-from utils import check_polygone_overlap, extract_textline
+from utils import check_polygone_overlap, extract_textline, swap_row_col
 import os
 import json
 import pandas as pd
@@ -36,9 +36,12 @@ def find_cell_text(page_lines, cell_lines, output_file):
             f.write(json.dumps(json_line) + '\n')
 
 
-def add_text_to_cells(cells, cell_texts):
+def add_text_to_cells(cells, cell_texts, wired=False):
     for cell_index, cell in enumerate(cells):
-        start_row, end_row, start_col, end_col = map(int, cell.split(","))
+        if wired:
+            start_col, end_col, start_row, end_row = map(int, cell.split(","))
+        else:
+            start_row, end_row, start_col, end_col = map(int, cell.split(","))
         content = ""
         for line in cell_texts:
             if str(cell_index) in line:
@@ -98,7 +101,7 @@ def table_to_markup(table):
     return markup
 
 
-def main(cells_file, structure_file, page_file, json_file, image_name):
+def main(cells_file, structure_file, page_file, json_file, image_name, wired=False):
     with open(cells_file, 'r') as file:
         cell_lines = file.readlines()
 
@@ -109,7 +112,7 @@ def main(cells_file, structure_file, page_file, json_file, image_name):
     page_lines = pd.read_csv(csv_file, quotechar='\"', escapechar='\\', on_bad_lines='skip')
 
     find_cell_text(page_lines, cell_lines, json_file)
-    cells_with_content = add_text_to_cells(cells_structure_lines, load_jsonl(json_file))
+    cells_with_content = add_text_to_cells(cells_structure_lines, load_jsonl(json_file), wired)
 
     with open(os.path.join("data", "htr", "csv", image_name +'.txt'), 'w') as f:
         for cell in cells_with_content:
@@ -139,4 +142,4 @@ if __name__ == "__main__":
         json_file = f"data/tables/json/{image_name}.jsonl"
 
         print(f"\nProcessing image: {image_name}")
-        main(cells_bounding_box, cells_structure, page_file, json_file, image_name)
+        main(cells_bounding_box, cells_structure, page_file, json_file, image_name, wired=True)
