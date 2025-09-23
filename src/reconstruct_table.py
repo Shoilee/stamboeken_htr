@@ -1,4 +1,4 @@
-from utils import check_polygone_overlap, extract_textline, swap_row_col
+from src.utils import check_polygone_overlap, extract_textline, swap_row_col
 import os
 import json
 import pandas as pd
