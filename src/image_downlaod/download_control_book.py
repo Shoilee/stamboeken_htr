@@ -22,7 +22,7 @@ def download_image(url, image_label, output_path):
         print(f"An error occurred while downloading the image: {e}")
 
 
-def send_get_request_and_process_xml(record_url, target, headers=None):
+def send_get_request_and_process_xml(record_url, image_directory, target, headers=None):
     namespaces = {
         'oai': 'http://www.openarchives.org/OAI/2.0/',
         'dc': 'http://dublincore.org/documents/dcmi-namespace/',
@@ -37,7 +37,6 @@ def send_get_request_and_process_xml(record_url, target, headers=None):
             record_root = etree.fromstring(record_response.content)
 
             # Directory where images will be saved
-            image_directory = f"../stamboek_{target}"
             if not os.path.exists(image_directory):
                 os.makedirs(image_directory)
 
@@ -95,9 +94,10 @@ if __name__ == "__main__":
     
     # Record Contains individual Control book)
     # PROVIDE CONTROL BOOK NUMBER OF INTEREST
-    control_book_no = "71"
+    control_book_no = "45"
+    image_directory = f"../../../stamboeken_data/folio_{control_book_no}"
 
     headers = {
         'Content-Type': 'application/xml',
     }
-    send_get_request_and_process_xml(url, control_book_no, headers=headers)
+    send_get_request_and_process_xml(url, image_directory, control_book_no, headers=headers)
