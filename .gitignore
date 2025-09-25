@@ -17,3 +17,4 @@ data
 .env
 BoundingBoxDetection
 data/*
+image_samples
