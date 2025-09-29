@@ -1,4 +1,5 @@
 from src.utils import check_polygone_overlap, extract_textline, swap_row_col
+from bs4 import BeautifulSoup
 import os
 import json
 import pandas as pd
@@ -132,8 +133,9 @@ def main(cells_file, structure_file, page_file, json_file, image_name, wired=Fal
     print("Table structure built successfully.")
 
     markup_file = os.path.join("data", "tables", "html", image_name+ ".html")
+    table = BeautifulSoup(table_html, "html.parser")
     with open(markup_file, "w", encoding="utf-8") as f:
-        f.write(table_html)
+        f.write(table.prettify())
     print(f"Table reconstructed and saved to {markup_file}")
 
 
