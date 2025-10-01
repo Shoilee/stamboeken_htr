@@ -89,7 +89,7 @@ def build_table_from_cells(cells, output_file):
 
 
 def table_to_markup(table):
-    markup = "<table>"
+    markup = "<table border='1'>"
     for row in table:
         markup += "<tr>"
         for cell in row:
