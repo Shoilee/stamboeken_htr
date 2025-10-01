@@ -2,6 +2,8 @@ from shapely.geometry import Polygon
 from lxml import etree
 import csv
 import os
+import xml.etree.ElementTree as ET
+from bs4 import BeautifulSoup
 
 def check_polygone_overlap(poly1:str, poly2:str, threshold=0.5) -> bool:
     """
@@ -140,6 +142,88 @@ def swap_row_col(file_path):
             writer = csv.writer(f_out)
             writer.writerows(swapped_data)
         print(f"Swapped data written to {output_file}")
+
+
+def pagexml_to_html(pagexml_file, output_file):
+    # Register the PAGE namespace
+    ns = {"pc": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"}
+
+    # Parse the XML
+    tree = ET.parse(pagexml_file)
+    root = tree.getroot()
+
+    # Find the TableRegion
+    table_region = root.find(".//pc:TableRegion", ns)
+
+    # Collect all cells
+    cells = []
+    for cell in table_region.findall("pc:TableCell", ns):
+        row = int(cell.attrib.get("row", 0))
+        col = int(cell.attrib.get("col", 0))
+        colspan = int(cell.attrib.get("colSpan", 1))   # default = 1
+        rowspan = int(cell.attrib.get("rowSpan", 1))   # default = 1
+        cell_id = cell.attrib.get("id", "")
+
+        # Collect text lines (respect reading order)
+        lines = []
+        for tl in sorted(cell.findall("pc:TextLine", ns), key=lambda x: int(x.attrib["custom"].split("index:")[1].split(";")[0]) if "custom" in x.attrib else 9999):
+            unicode_el = tl.find(".//pc:Unicode", ns)
+            if unicode_el is not None and unicode_el.text:
+                lines.append(unicode_el.text.strip())
+
+        # Fallback for cell-level TextEquiv (if no lines)
+        if not lines:
+            for unicode_el in cell.findall("pc:TextEquiv/pc:Unicode", ns):
+                if unicode_el.text:
+                    lines.append(unicode_el.text.strip())
+
+        cell_text = "<br/>".join(lines)
+
+        cells.append({
+            "row": row,
+            "col": col,
+            "colspan": colspan,
+            "rowspan": rowspan,
+            "id": cell_id,
+            "text": cell_text
+        })
+
+    # Build HTML table
+    max_row = max(c["row"] for c in cells)
+    max_col = max(c["col"] for c in cells)
+
+    # Group by row
+    rows = {}
+    for c in cells:
+        rows.setdefault(c["row"], []).append(c)
+
+    # Sort each row by column
+    for r in rows:
+        rows[r] = sorted(rows[r], key=lambda x: x["col"])
+
+    # Construct HTML string
+    html = ["<table border='1'>"]
+    for r in range(max_row + 1):
+        html.append("  <tr>")
+        for c in rows.get(r, []):
+            html.append(
+                f"    <td id='{c['id']}' "
+                f"row='{c['row']}' col='{c['col']}' "
+                f"colspan='{c['colspan']}' rowspan='{c['rowspan']}'>"
+                f"{c['text']}</td>"
+            )
+        html.append("  </tr>")
+    html.append("</table>")
+
+    html_str = "\n".join(html)
+
+    table = BeautifulSoup(html_str, "html.parser")
+
+    # Save to file
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(table.prettify())
+
+    return html_str
 
 if __name__ == "__main__":
     # polygon_str1 = "1021,1055 1071,1048 1118,1034 1131,1078 1077,1093 1027,1100" # line region (smaller polygone)
