@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 import os
+import sys
 import json
 import time
 import subprocess
+import argparse
 from bs4 import BeautifulSoup
 
 from helpers import copy_file, delete_file, read_html_file, write_json_file, read_json_file
@@ -106,10 +108,6 @@ def extract_persons_from_html(constructed_html):
     unique_persons = {json.dumps(p, sort_keys=True) for p in persons}
     return {"persons": [json.loads(p) for p in unique_persons]}
 
-
-# =========================
-# EVALUATION
-# =========================
 def calculate_TEDS(ground_truth_html, predicted_html):
     """Calculate TEDS and TEDS-Struct similarity."""
     from utils import format_td
@@ -149,11 +147,66 @@ def ml_construct_table(data_path):
         json_file = f"{data_path}/tables/json/{IMAGE_NAME}.jsonl"
         reconstruct_table_pipeline(IMAGE_NAME, cells_bounding_box, cells_structure, page_file, json_file)
 
-if __name__ == "__main__":
-    data_path = "data"
 
-    # Table reconstruction
-    # ml_construct_table(data_path)
+def transkribus_construct_table(data_path, output_path):
+    from utils import pagexml_to_html
+
+    for filename in os.listdir(os.path.join(data_path, "images")):
+        if not filename.endswith('.jpg'):
+            continue
+        
+        IMAGE_NAME = filename
+        directory = os.path.join(data_path, "tables", "pagexml")
+
+        pagexml_file = os.path.join(directory, IMAGE_NAME+ ".xml")
+        output_file = os.path.join(output_path, IMAGE_NAME + ".html")
+        pagexml_to_html(pagexml_file, output_file)
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--exp_name", type=str, required=True, help="Name of the process")
+    parser.add_argument("--data_path", type=str, required=True, help="Path to the evaluation dataset")
+    parser.add_argument("--output_path", type=str, required=False, help="Path to save outputs")
+    args = parser.parse_args()
+
+    exp_name = args.exp_name
+    data_path = args.data_path
+    output_path = args.output_path if args.output_path else data_path
+
+    print(f"Starting process: {exp_name}")
+    time.sleep(1)  # Simulate some processing time
+
+    if not os.path.exists(data_path):
+        print(f"Data path {data_path} does not exist.")
+        sys.exit(1)
+
+    if not os.path.exists(output_path):
+        os.makedirs(output_path)
+
+    if exp_name not in ["ml", "transkribus", "llm", "llm_multi"]:
+        print(f"Process {exp_name} is not recognized.")
+        sys.exit(1)
+
+    # =========================
+    # TABLE CONSTRUCTION
+    # =========================
+    if exp_name == "ml":
+        print("Running ML process...")
+        ml_construct_table(data_path)
+
+    elif exp_name == "transkribus":
+        print("Running Transkribus process...")  
+        output_path = os.path.join(data_path, "tables", "html")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        transkribus_construct_table(data_path, output_path)
+        
+    elif exp_name == "llm":
+        print("Running LLM process...")
+        # Placeholder for LLM process logic
+    elif exp_name == "llm_multi":
+        print("Running LLM Multi process...")
+        # Placeholder for LLM Multi process logic
 
 
     for filename in os.listdir(os.path.join(data_path, "images")):
@@ -167,7 +220,9 @@ if __name__ == "__main__":
 
         print(f"Completed evaluation for {IMAGE_NAME}\n")
 
-        # Information extraction
+        # =========================
+        # INFORMATION EXTRACTION
+        # =========================
         persons_json = extract_persons_from_html(constructed_html)
         write_json_file(f"{data_path}/json/{IMAGE_NAME}.json", persons_json)
 
