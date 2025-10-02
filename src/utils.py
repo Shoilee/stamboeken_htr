@@ -225,6 +225,40 @@ def pagexml_to_html(pagexml_file, output_file):
 
     return html_str
 
+
+def extract_HTML(text):
+    # ```html
+    # ```
+    start_index = text.find('```html')
+    end_index = text.rfind('</table>')
+    if start_index != -1 and end_index != -1:
+        s = text[start_index + 7:end_index + 8]
+        s = s.strip()
+        soup = BeautifulSoup(s, 'html.parser')
+        cleaned_html = str(soup.table)
+        cleaned_html = cleaned_html.replace("\n", "")
+        return cleaned_html
+    else:
+        start_index = text.find('<table>')
+        if start_index != -1 and end_index != -1:
+            s = text[start_index:end_index + 8]
+            s = s.strip()
+            soup = BeautifulSoup(s, 'html.parser')
+            cleaned_html = str(soup.table)
+            cleaned_html = cleaned_html.replace("\n", "")
+            return cleaned_html
+        raise Exception("Parse error! Not find HTML in LLM response!")
+
+
+def format_td(html):
+    html = html.replace("\n", "")
+    html = html.replace("<thead>", "").replace("</thead>", "")
+    html = html.replace("<tbody>", "").replace("</tbody>", "")
+    return html
+
+
+
+
 if __name__ == "__main__":
     # polygon_str1 = "1021,1055 1071,1048 1118,1034 1131,1078 1077,1093 1027,1100" # line region (smaller polygone)
     # polygon_str2 = "1031.3846,974.5904;1122.732,974.5985;1122.7303,1081.7006;1031.3759,1081.7185" # cell region (larger polygone)
