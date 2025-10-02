@@ -7,8 +7,7 @@ import subprocess
 import argparse
 from bs4 import BeautifulSoup
 
-from helpers import copy_file, delete_file, read_html_file, write_json_file, read_json_file
-from rdflib import Graph, ConjunctiveGraph, Namespace, URIRef, Literal, RDF
+from helpers import copy_file, delete_file, read_html_file, write_html_file, write_json_file, read_json_file
 from run_loghi import run_bash_script as run_loghi
 
 def run_LOGHI_pipeline(data_path="data"):
@@ -162,6 +161,76 @@ def transkribus_construct_table(data_path, output_path):
         output_file = os.path.join(output_path, IMAGE_NAME + ".html")
         pagexml_to_html(pagexml_file, output_file)
 
+def llm_construct_table(data_path, output_path):
+    from LLM import LLM_table_construct
+    from LLM_key import llm_model
+    from utils import extract_HTML
+    from prompt import tsr_html_prompt, tsr_html_decomposition
+
+    for filename in os.listdir(os.path.join(data_path, "images")):
+        if not filename.endswith('.jpg'):
+            continue
+        
+        IMAGE_NAME = filename
+        image_path = os.path.join(data_path, "images", IMAGE_NAME)
+        output_file = os.path.join(output_path, IMAGE_NAME + ".html")
+
+        llm_html = LLM_table_construct(image_path, prompt=tsr_html_prompt, model_name=llm_model, temperature=0)
+        llm_html = extract_HTML(llm_html)
+        
+        llm_html = llm_html.replace("<table>", "<table border='1'>")
+        write_html_file(output_file, llm_html)
+
+def llm_multi_construct_table(data_path, output_path):
+    import re, csv
+    from LLM import LLM_multi_agent_table_construct
+    from LLM_key import llm_model
+    from utils import extract_HTML
+
+    for filename in os.listdir(os.path.join(data_path, "images")):
+        if not filename.endswith('.jpg'):
+            continue
+        
+        IMAGE_NAME = filename
+        image_path = os.path.join(data_path, "images", IMAGE_NAME)
+
+        llm_response = LLM_multi_agent_table_construct(image_path, model_name=llm_model, temperature=0)
+        
+        # Extract detected cells coordinates 
+        detected_block = re.search(r"coordinates.*?```plaintext(.*?)```", llm_response, re.S | re.I)
+        detected_lines = detected_block.group(1).strip().splitlines() if detected_block else []
+
+        with open(os.path.join(output_path, "cells", "center", IMAGE_NAME+'.txt'), "w+", newline="") as f:
+            writer = csv.writer(f)
+            for line in detected_lines:
+                if not line.strip():
+                    continue
+                parts = line.split("#")
+                polygon = parts[0].strip()
+                cell_id = "#" + parts[1].strip() if len(parts) > 1 else ""
+                writer.writerow([polygon, cell_id])
+
+        # Extract logical cell sequence
+        logical_block = re.search(r"logical sequence.*?```plaintext(.*?)```", llm_response, re.S | re.I)
+        logical_lines = logical_block.group(1).strip().splitlines() if logical_block else []
+
+        with open(os.path.join(output_path, "cells", "logi", IMAGE_NAME+'.txt'), "w+", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["sequence", "cell_id"])  # header
+            for line in logical_lines:
+                if not line.strip() or line.strip().startswith("</"):
+                    continue
+                parts = line.split("#")
+                sequence = parts[0].strip()
+                cell_id = "#" + parts[1].strip() if len(parts) > 1 else ""
+                writer.writerow([sequence, cell_id])
+
+        llm_html = extract_HTML(llm_response)
+        llm_html = llm_html.replace("<table>", "<table border='1'>")
+
+        output_file = os.path.join(output_path, "html", IMAGE_NAME + ".html")
+        write_html_file(output_file, llm_html)
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("--exp_name", type=str, required=True, help="Name of the process")
@@ -203,10 +272,29 @@ if __name__ == "__main__":
         
     elif exp_name == "llm":
         print("Running LLM process...")
-        # Placeholder for LLM process logic
+        
+        output_path = os.path.join(data_path, "tables")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        llm_construct_table(data_path, output_path)
+
     elif exp_name == "llm_multi":
         print("Running LLM Multi process...")
-        # Placeholder for LLM Multi process logic
+        
+        output_path = os.path.join(data_path, "tables")
+        if not os.path.exists(output_path):
+            os.makedirs(output_path)
+        for subfolder in ["cells", "html"]:
+            subfolder_path = os.path.join(output_path, subfolder)
+            if not os.path.exists(subfolder_path):
+                os.makedirs(subfolder_path)
+            if subfolder == "cells":
+                for cell_type in ["center", "logi"]:
+                    cell_type_path = os.path.join(subfolder_path, cell_type)
+                    if not os.path.exists(cell_type_path):
+                        os.makedirs(cell_type_path)
+                        
+        llm_multi_construct_table(data_path, output_path) 
 
 
     for filename in os.listdir(os.path.join(data_path, "images")):
