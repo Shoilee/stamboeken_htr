@@ -1,4 +1,4 @@
-from src.utils import check_polygone_overlap, extract_textline, swap_row_col
+from utils import check_polygone_overlap, extract_textline, swap_row_col
 from bs4 import BeautifulSoup
 import os
 import json

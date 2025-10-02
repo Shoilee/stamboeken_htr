@@ -3,7 +3,7 @@ import json
 from bs4 import BeautifulSoup
 from groq import Groq
 import io
-from src.LLM_key import groq_key
+from LLM_key import groq_key
 
 def generate_prompt(cells):
     prompt = f"""
