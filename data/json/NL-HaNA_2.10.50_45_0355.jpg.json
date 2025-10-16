@@ -1,0 +1,48 @@
+{
+    "persons": [
+        {
+            "geboorte_datum": {
+                "cell": "c_6",
+                "value": "8sten october 1735"
+            },
+            "geboorte_plaats": {
+                "cell": "c_6",
+                "value": "Schouwen"
+            },
+            "laatste_woonplaats": {
+                "cell": "c_6",
+                "value": "Bruille"
+            },
+            "moeder": {
+                "cell": "c_6",
+                "value": "Catharina Cantlet"
+            },
+            "vader": {
+                "cell": "c_6",
+                "value": "Isaac Soreils"
+            }
+        },
+        {
+            "geboorte_datum": {
+                "cell": "c_10",
+                "value": "22sten december 1737"
+            },
+            "geboorte_plaats": {
+                "cell": "c_10",
+                "value": "Sloye"
+            },
+            "laatste_woonplaats": {
+                "cell": "c_10",
+                "value": "Sloye"
+            },
+            "moeder": {
+                "cell": "c_10",
+                "value": "Maria Mandek"
+            },
+            "vader": {
+                "cell": "c_10",
+                "value": "Cornel Mandek"
+            }
+        }
+    ]
+}

@@ -1,0 +1,6 @@
+- anything out of that falls out of the table has been discarded.
+- unsure charecter gets dot (singular . and plural .*)
+
+
+Done: 
+- data/labels/NL-HaNA_2.10.50_45_0355.jpg.html

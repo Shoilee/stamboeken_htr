@@ -1,0 +1,513 @@
+@prefix csvw: <http://www.w3.org/ns/csvw#> .
+@prefix ex: <http://example.org/ontology/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+<http://example.org/graph/c_1> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_1> .
+
+<http://example.org/graph/c_10> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_10> .
+
+<http://example.org/graph/c_11> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_11> .
+
+<http://example.org/graph/c_12> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_12> .
+
+<http://example.org/graph/c_13> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_13> .
+
+<http://example.org/graph/c_14> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_14> .
+
+<http://example.org/graph/c_15> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_15> .
+
+<http://example.org/graph/c_2> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_2> .
+
+<http://example.org/graph/c_3> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_3> .
+
+<http://example.org/graph/c_4> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_4> .
+
+<http://example.org/graph/c_5> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_5> .
+
+<http://example.org/graph/c_6> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_6> .
+
+<http://example.org/graph/c_7> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_7> .
+
+<http://example.org/graph/c_8> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_8> .
+
+<http://example.org/graph/c_9> prov:wasAttributedTo <http://example.org/agent/1> ;
+    prov:wasGeneratedBy <http://example.org/activity/stamboekenKGConstructionactivity/c_9> .
+
+<http://example.org/Table/c_1> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_1> .
+
+<http://example.org/Table/c_10> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_10> .
+
+<http://example.org/Table/c_11> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_11> .
+
+<http://example.org/Table/c_12> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_12> .
+
+<http://example.org/Table/c_13> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_13> .
+
+<http://example.org/Table/c_14> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_14> .
+
+<http://example.org/Table/c_15> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_15> .
+
+<http://example.org/Table/c_2> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_2> .
+
+<http://example.org/Table/c_3> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_3> .
+
+<http://example.org/Table/c_4> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_4> .
+
+<http://example.org/Table/c_5> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_5> .
+
+<http://example.org/Table/c_6> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_6> .
+
+<http://example.org/Table/c_7> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_7> .
+
+<http://example.org/Table/c_8> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_8> .
+
+<http://example.org/Table/c_9> a csvw:Table,
+        prov:Entity ;
+    prov:wasDerivedFrom <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> ;
+    prov:wasGeneratedBy <http://example.org/activity/TableExtraction/c_9> .
+
+<http://example.org/activity/InformationExtraction/c_1> a prov:Activity ;
+    prov:used <http://example.org/id/c_1> .
+
+<http://example.org/activity/InformationExtraction/c_10> a prov:Activity ;
+    prov:used <http://example.org/id/c_10> .
+
+<http://example.org/activity/InformationExtraction/c_11> a prov:Activity ;
+    prov:used <http://example.org/id/c_11> .
+
+<http://example.org/activity/InformationExtraction/c_12> a prov:Activity ;
+    prov:used <http://example.org/id/c_12> .
+
+<http://example.org/activity/InformationExtraction/c_13> a prov:Activity ;
+    prov:used <http://example.org/id/c_13> .
+
+<http://example.org/activity/InformationExtraction/c_14> a prov:Activity ;
+    prov:used <http://example.org/id/c_14> .
+
+<http://example.org/activity/InformationExtraction/c_15> a prov:Activity ;
+    prov:used <http://example.org/id/c_15> .
+
+<http://example.org/activity/InformationExtraction/c_2> a prov:Activity ;
+    prov:used <http://example.org/id/c_2> .
+
+<http://example.org/activity/InformationExtraction/c_3> a prov:Activity ;
+    prov:used <http://example.org/id/c_3> .
+
+<http://example.org/activity/InformationExtraction/c_4> a prov:Activity ;
+    prov:used <http://example.org/id/c_4> .
+
+<http://example.org/activity/InformationExtraction/c_5> a prov:Activity ;
+    prov:used <http://example.org/id/c_5> .
+
+<http://example.org/activity/InformationExtraction/c_6> a prov:Activity ;
+    prov:used <http://example.org/id/c_6> .
+
+<http://example.org/activity/InformationExtraction/c_7> a prov:Activity ;
+    prov:used <http://example.org/id/c_7> .
+
+<http://example.org/activity/InformationExtraction/c_8> a prov:Activity ;
+    prov:used <http://example.org/id/c_8> .
+
+<http://example.org/activity/InformationExtraction/c_9> a prov:Activity ;
+    prov:used <http://example.org/id/c_9> .
+
+<http://example.org/activity/KGConstruction/c_1> a prov:Activity ;
+    prov:used <http://example.org/id/c_1> .
+
+<http://example.org/activity/KGConstruction/c_10> a prov:Activity ;
+    prov:used <http://example.org/id/c_10> .
+
+<http://example.org/activity/KGConstruction/c_11> a prov:Activity ;
+    prov:used <http://example.org/id/c_11> .
+
+<http://example.org/activity/KGConstruction/c_12> a prov:Activity ;
+    prov:used <http://example.org/id/c_12> .
+
+<http://example.org/activity/KGConstruction/c_13> a prov:Activity ;
+    prov:used <http://example.org/id/c_13> .
+
+<http://example.org/activity/KGConstruction/c_14> a prov:Activity ;
+    prov:used <http://example.org/id/c_14> .
+
+<http://example.org/activity/KGConstruction/c_15> a prov:Activity ;
+    prov:used <http://example.org/id/c_15> .
+
+<http://example.org/activity/KGConstruction/c_2> a prov:Activity ;
+    prov:used <http://example.org/id/c_2> .
+
+<http://example.org/activity/KGConstruction/c_3> a prov:Activity ;
+    prov:used <http://example.org/id/c_3> .
+
+<http://example.org/activity/KGConstruction/c_4> a prov:Activity ;
+    prov:used <http://example.org/id/c_4> .
+
+<http://example.org/activity/KGConstruction/c_5> a prov:Activity ;
+    prov:used <http://example.org/id/c_5> .
+
+<http://example.org/activity/KGConstruction/c_6> a prov:Activity ;
+    prov:used <http://example.org/id/c_6> .
+
+<http://example.org/activity/KGConstruction/c_7> a prov:Activity ;
+    prov:used <http://example.org/id/c_7> .
+
+<http://example.org/activity/KGConstruction/c_8> a prov:Activity ;
+    prov:used <http://example.org/id/c_8> .
+
+<http://example.org/activity/KGConstruction/c_9> a prov:Activity ;
+    prov:used <http://example.org/id/c_9> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_1> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_1>,
+        <http://example.org/activity/KGConstruction/c_1>,
+        <http://example.org/activity/TableExtraction/c_1> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_10> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_10>,
+        <http://example.org/activity/KGConstruction/c_10>,
+        <http://example.org/activity/TableExtraction/c_10> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_11> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_11>,
+        <http://example.org/activity/KGConstruction/c_11>,
+        <http://example.org/activity/TableExtraction/c_11> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_12> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_12>,
+        <http://example.org/activity/KGConstruction/c_12>,
+        <http://example.org/activity/TableExtraction/c_12> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_13> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_13>,
+        <http://example.org/activity/KGConstruction/c_13>,
+        <http://example.org/activity/TableExtraction/c_13> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_14> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_14>,
+        <http://example.org/activity/KGConstruction/c_14>,
+        <http://example.org/activity/TableExtraction/c_14> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_15> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_15>,
+        <http://example.org/activity/KGConstruction/c_15>,
+        <http://example.org/activity/TableExtraction/c_15> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_2> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_2>,
+        <http://example.org/activity/KGConstruction/c_2>,
+        <http://example.org/activity/TableExtraction/c_2> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_3> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_3>,
+        <http://example.org/activity/KGConstruction/c_3>,
+        <http://example.org/activity/TableExtraction/c_3> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_4> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_4>,
+        <http://example.org/activity/KGConstruction/c_4>,
+        <http://example.org/activity/TableExtraction/c_4> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_5> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_5>,
+        <http://example.org/activity/KGConstruction/c_5>,
+        <http://example.org/activity/TableExtraction/c_5> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_6> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_6>,
+        <http://example.org/activity/KGConstruction/c_6>,
+        <http://example.org/activity/TableExtraction/c_6> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_7> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_7>,
+        <http://example.org/activity/KGConstruction/c_7>,
+        <http://example.org/activity/TableExtraction/c_7> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_8> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_8>,
+        <http://example.org/activity/KGConstruction/c_8>,
+        <http://example.org/activity/TableExtraction/c_8> .
+
+<http://example.org/activity/stamboekenKGConstructionactivity/c_9> a prov:Activity ;
+    prov:endedAtTime "2025-09-01T12:00:00Z" ;
+    prov:startedAtTime "2025-09-01T10:00:00Z" ;
+    prov:wasAssociatedWith <http://example.org/agent/1> ;
+    prov:wasInformedBy <http://example.org/activity/InformationExtraction/c_9>,
+        <http://example.org/activity/KGConstruction/c_9>,
+        <http://example.org/activity/TableExtraction/c_9> .
+
+<http://example.org/agent/2> a prov:Agent ;
+    rdfs:label "Pressing Matter Project" .
+
+<http://example.org/agent/3> a prov:Agent ;
+    rdfs:label "Nationaal Archief" .
+
+<http://example.org/activity/TableExtraction/c_1> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_10> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_11> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_12> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_13> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_14> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_15> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_2> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_3> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_4> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_5> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_6> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_7> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_8> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/activity/TableExtraction/c_9> a prov:Activity ;
+    prov:used <http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> .
+
+<http://example.org/id/c_1> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_1 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "256,91;573,91;573,141;256,141" ;
+    csvw:columnNumber "0" ;
+    csvw:rowNumber "0" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_1> .
+
+<http://example.org/id/c_10> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_10 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "876,141;946,141;946,527;876,527" ;
+    csvw:columnNumber "4" ;
+    csvw:rowNumber "1" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_10> .
+
+<http://example.org/id/c_11> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_11 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "256,527;573,527;573,913;256,913" ;
+    csvw:columnNumber "0" ;
+    csvw:rowNumber "2" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_11> .
+
+<http://example.org/id/c_12> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_12 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "573,527;712,527;712,913;573,913" ;
+    csvw:columnNumber "1" ;
+    csvw:rowNumber "2" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_12> .
+
+<http://example.org/id/c_13> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_13 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "712,527;806,527;806,913;712,913" ;
+    csvw:columnNumber "2" ;
+    csvw:rowNumber "2" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_13> .
+
+<http://example.org/id/c_14> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_14 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "806,527;876,527;876,913;806,913" ;
+    csvw:columnNumber "3" ;
+    csvw:rowNumber "2" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_14> .
+
+<http://example.org/id/c_15> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_15 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "876,527;946,527;946,913;876,913" ;
+    csvw:columnNumber "4" ;
+    csvw:rowNumber "2" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_15> .
+
+<http://example.org/id/c_2> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_2 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "573,91;712,91;712,141;573,141" ;
+    csvw:columnNumber "1" ;
+    csvw:rowNumber "0" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_2> .
+
+<http://example.org/id/c_3> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_3 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "712,91;806,91;806,141;712,141" ;
+    csvw:columnNumber "2" ;
+    csvw:rowNumber "0" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_3> .
+
+<http://example.org/id/c_4> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_4 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "806,91;876,91;876,141;806,141" ;
+    csvw:columnNumber "3" ;
+    csvw:rowNumber "0" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_4> .
+
+<http://example.org/id/c_5> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_5 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "876,91;946,91;946,141;876,141" ;
+    csvw:columnNumber "4" ;
+    csvw:rowNumber "0" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_5> .
+
+<http://example.org/id/c_6> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_6 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "256,141;573,141;573,527;256,527" ;
+    csvw:columnNumber "0" ;
+    csvw:rowNumber "1" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_6> .
+
+<http://example.org/id/c_7> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_7 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "573,141;712,141;712,527;573,527" ;
+    csvw:columnNumber "1" ;
+    csvw:rowNumber "1" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_7> .
+
+<http://example.org/id/c_8> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_8 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "712,141;806,141;806,527;712,527" ;
+    csvw:columnNumber "2" ;
+    csvw:rowNumber "1" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_8> .
+
+<http://example.org/id/c_9> a csvw:Cell,
+        prov:Entity ;
+    rdfs:label "Cell c_9 from NL-HaNA_2.10.50_45_0355.jpg" ;
+    ex:ImageRegion "806,141;876,141;876,527;806,527" ;
+    csvw:columnNumber "3" ;
+    csvw:rowNumber "1" ;
+    prov:wasDerivedFrom <http://example.org/Table/c_9> .
+
+<http://example.org/agent/1> a prov:Agent ;
+    rdfs:label "Sarah Shoilee" ;
+    prov:actedOnBehalfOf <http://example.org/agent/2> .
+
+<http://example.org/stamboek/NL-HaNA_2.10.50_45_0355.jpg> a prov:Entity ;
+    prov:wasAttributedTo <http://example.org/agent/3> .
+

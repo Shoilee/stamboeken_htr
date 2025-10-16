@@ -1,0 +1,182 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+    <Metadata>
+        <Creator>prov=READ-COOP:name=PyLaia@TranskribusPlatform:version=2.31.0:model_id=50786:lm=none:date=10_09_2025_23:08</Creator>
+        <Created>2025-09-10T11:59:26.659+02:00</Created>
+        <LastChange>2025-09-10T23:23:29.787+02:00</LastChange>
+        <TranskribusMetadata docId="10562526" pageId="102782337" pageNr="1" status="IN_PROGRESS" userId="283533" imgUrl="https://files.transkribus.eu/Get?id=TCDBBUIINROZILKSLOCNNWOV&amp;fileType=view" imageId="86176950"/>
+    </Metadata>
+    <Page imageFilename="102782337.jpg" imageWidth="5000" imageHeight="2960">
+        <TextRegion id="r" custom="readingOrder {index:0;}">
+            <Coords points="1225,533 1742,533 1742,1580 1225,1580"/>
+            <TextLine id="tr_1_tl_2" custom="readingOrder {index:0;}">
+                <Coords points="1272,1128 1336,1142 1360,1128 1430,1132 1460,1106 1488,1102 1502,806 1442,800 1392,820 1366,810 1338,826 1310,802 1288,802"/>
+                <Baseline points="1289,1032 1315,1032 1341,1029 1367,1025 1393,1022 1419,1021 1445,1022 1471,1024 1497,1026"/>
+                <TextEquiv>
+                    <Unicode>Hop</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TextRegion id="r_1" custom="readingOrder {index:1;}">
+            <Coords points="1767,523 2148,523 2148,1583 1767,1583"/>
+            <TextLine id="tr_1_tl_3" custom="readingOrder {index:0;}">
+                <Coords points="1762,1044 1870,1040 1906,1066 1936,1054 1960,1078 2030,1104 2030,912 2004,910 1952,940 1906,916 1866,942 1836,928 1784,938 1762,926"/>
+                <Baseline points="1772,1038 1798,1036 1824,1034 1850,1032 1877,1033 1903,1035 1929,1037 1956,1037 1982,1036 2008,1034 2035,1032"/>
+                <TextEquiv>
+                    <Unicode>Jacob Beorg</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TextRegion id="r_2" custom="readingOrder {index:2;}">
+            <Coords points="2179,517 2836,517 2836,1562 2179,1562"/>
+            <TextLine id="tr_2_tl_4" custom="readingOrder {index:0;}">
+                <Coords points="2154,932 2192,940 2272,872 2376,844 2436,842 2476,868 2532,844 2724,854 2726,734 2652,772 2572,730 2532,760 2492,736 2352,786 2264,738 2238,746 2158,678"/>
+                <Baseline points="2166,847 2194,841 2222,841 2250,841 2278,841 2306,841 2334,841 2362,841 2390,841 2418,841 2446,841 2474,840 2502,838 2530,836 2558,835 2586,835 2614,835 2642,835 2670,835 2698,835 2727,835"/>
+                <TextEquiv>
+                    <Unicode>Moeder Cakleuna Ballert</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_5" custom="readingOrder {index:1;}">
+                <Coords points="2150,1030 2402,1066 2446,1038 2518,1036 2616,1078 2710,1048 2710,964 2646,986 2578,960 2536,988 2494,972 2474,990 2360,970 2232,914 2192,940 2148,926"/>
+                <Baseline points="2160,1026 2187,1028 2215,1030 2243,1032 2271,1032 2298,1032 2326,1032 2354,1032 2382,1032 2409,1032 2437,1032 2465,1032 2493,1032 2520,1032 2548,1034 2576,1036 2604,1038 2631,1038 2659,1038 2687,1038 2715,1038"/>
+                <TextEquiv>
+                    <Unicode>Geboren Den 9 October 1775</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_6" custom="readingOrder {index:2;}">
+                <Coords points="2170,1306 2306,1222 2330,1244 2446,1222 2642,1256 2680,1218 2758,1224 2758,1144 2634,1154 2578,1130 2522,1162 2454,1138 2370,1146 2336,1114 2166,1068"/>
+                <Baseline points="2178,1211 2207,1211 2236,1211 2265,1211 2295,1213 2324,1215 2353,1217 2382,1217 2412,1217 2441,1217 2470,1217 2499,1217 2529,1217 2558,1217 2587,1217 2616,1217 2646,1217 2675,1217 2704,1217 2733,1219 2763,1223"/>
+                <TextEquiv>
+                    <Unicode>beboortplaats Schoorkoven</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_7" custom="readingOrder {index:3;}">
+                <Coords points="2162,1422 2302,1418 2328,1444 2600,1426 2624,1444 2676,1412 2776,1414 2778,1314 2624,1338 2560,1322 2486,1366 2276,1296 2164,1376"/>
+                <Baseline points="2172,1414 2202,1411 2232,1409 2263,1409 2293,1411 2324,1413 2354,1413 2384,1411 2415,1408 2445,1408 2476,1408 2506,1408 2536,1408 2567,1408 2597,1408 2628,1406 2658,1404 2688,1402 2719,1402 2749,1402 2780,1402"/>
+                <TextEquiv>
+                    <Unicode>Laatste Woonplaats Bruille</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TextRegion id="r_3" custom="readingOrder {index:3;}">
+            <Coords points="1229,1675 1749,1675 1749,2707 1229,2707"/>
+            <TextLine id="tr_1_tl_4" custom="readingOrder {index:0;}">
+                <Coords points="1218,2166 1302,2178 1334,2162 1370,2186 1564,2160 1592,2186 1638,2172 1686,2190 1688,2034 1600,2034 1542,1984 1442,2054 1384,2062 1344,2102 1270,2088 1218,2112"/>
+                <Baseline points="1229,2154 1254,2154 1280,2154 1305,2154 1331,2153 1356,2151 1382,2150 1407,2148 1433,2148 1458,2148 1484,2148 1509,2148 1535,2148 1560,2148 1586,2148 1611,2148 1637,2148 1662,2148 1688,2154"/>
+                <TextEquiv>
+                    <Unicode>van Schack</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TextRegion id="r_4" custom="readingOrder {index:4;}">
+            <Coords points="1772,1692 2152,1692 2152,2701 1772,2701"/>
+            <TextLine id="tr_1_tl_5" custom="readingOrder {index:0;}">
+                <Coords points="1754,2216 1782,2202 1820,2212 1902,2194 1950,2214 1990,2192 2054,2190 2060,2042 1994,2072 1930,2036 1910,2048 1860,2044 1844,2058 1760,2056"/>
+                <Baseline points="1766,2160 1792,2160 1819,2158 1845,2156 1872,2154 1898,2154 1925,2154 1951,2154 1978,2153 2004,2152 2031,2150 2058,2148"/>
+                <TextEquiv>
+                    <Unicode>Grest Herdrch</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TextRegion id="r_5" custom="readingOrder {index:5;}">
+            <Coords points="2170,1588 2852,1575 2845,2685 2181,2685"/>
+            <TextLine id="tr_2_tl_9" custom="readingOrder {index:0;}">
+                <Coords points="2168,1988 2194,1998 2236,1960 2360,1980 2408,1962 2444,1990 2550,1996 2686,1964 2740,2000 2740,1868 2702,1890 2612,1860 2514,1924 2448,1896 2382,1918 2302,1840 2276,1866 2168,1850"/>
+                <Baseline points="2178,1957 2206,1957 2234,1957 2263,1957 2291,1957 2319,1957 2348,1957 2376,1956 2404,1954 2433,1952 2461,1951 2489,1951 2518,1951 2546,1951 2574,1951 2603,1951 2631,1951 2659,1953 2688,1955 2716,1957 2745,1957"/>
+                <TextEquiv>
+                    <Unicode>Moeder Marin Om arbeek</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_10" custom="readingOrder {index:1;}">
+                <Coords points="2144,2250 2198,2262 2332,2168 2412,2184 2558,2160 2734,2190 2734,2070 2642,2074 2580,2124 2504,2072 2344,2102 2242,2052 2180,2094 2144,2084"/>
+                <Baseline points="2154,2154 2183,2150 2212,2149 2241,2151 2271,2153 2300,2154 2329,2154 2358,2154 2388,2154 2417,2154 2446,2154 2475,2154 2505,2154 2534,2154 2563,2154 2592,2154 2622,2154 2651,2154 2680,2152 2709,2150 2739,2148"/>
+                <TextEquiv>
+                    <Unicode>Geboren Den 23 december 1741</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_11" custom="readingOrder {index:2;}">
+                <Coords points="2166,2448 2366,2356 2504,2354 2548,2384 2630,2382 2668,2356 2670,2240 2630,2228 2524,2276 2458,2248 2394,2266 2318,2210 2170,2186"/>
+                <Baseline points="2178,2339 2204,2339 2230,2339 2256,2339 2282,2339 2308,2339 2334,2339 2360,2339 2386,2339 2412,2339 2438,2339 2464,2338 2490,2336 2516,2334 2542,2333 2568,2333 2594,2333 2620,2333 2646,2336 2673,2339"/>
+                <TextEquiv>
+                    <Unicode>beboorkplaats Stip</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextLine id="tr_2_tl_12" custom="readingOrder {index:3;}">
+                <Coords points="2162,2584 2322,2586 2354,2556 2404,2580 2644,2562 2710,2596 2770,2576 2772,2454 2568,2468 2514,2502 2456,2456 2412,2476 2356,2452 2318,2478 2266,2458 2164,2526"/>
+                <Baseline points="2172,2548 2202,2548 2232,2548 2262,2548 2292,2548 2322,2548 2352,2548 2383,2548 2413,2548 2443,2548 2473,2548 2503,2548 2533,2548 2563,2548 2594,2548 2624,2546 2654,2544 2684,2542 2714,2542 2744,2542 2775,2542"/>
+                <TextEquiv>
+                    <Unicode>Laatste Woonplaats ssage</Unicode>
+                </TextEquiv>
+            </TextLine>
+            <TextEquiv>
+                <Unicode></Unicode>
+            </TextEquiv>
+        </TextRegion>
+        <TableRegion id="t" custom="readingOrder {index:6;}">
+            <Coords points="1232,519 1232,2783 4568,2783 4568,519"/>
+            <TableCell row="0" col="0" rowSpan="1" colSpan="1" id="c_44">
+                <Coords points="1232,519 1232,1609 1754,1609 1754,519"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="0" col="1" rowSpan="1" colSpan="1" id="c_63">
+                <Coords points="1754,519 1754,1609 2161,1609 2161,519"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="0" col="2" rowSpan="1" colSpan="1" id="c_86">
+                <Coords points="2161,519 2161,1609 2878,1609 2878,519"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="0" col="3" rowSpan="1" colSpan="1" id="c_113">
+                <Coords points="2878,519 2878,1609 3554,1609 3554,519"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="0" col="4" rowSpan="1" colSpan="1" id="c_144">
+                <Coords points="3554,519 3554,1609 3832,1609 3832,519"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="0" col="5" rowSpan="1" colSpan="1" id="c_145">
+                <Coords points="3832,519 3832,1609 4541,1598 4541,508"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="0" rowSpan="1" colSpan="1" id="c_816">
+                <Coords points="1232,1609 1247,2723 1769,2723 1754,1609"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="1" rowSpan="1" colSpan="1" id="c_817">
+                <Coords points="1754,1609 1769,2723 2176,2723 2161,1609"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="2" rowSpan="1" colSpan="1" id="c_818">
+                <Coords points="2161,1609 2176,2723 2893,2723 2878,1609"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="3" rowSpan="1" colSpan="1" id="c_819">
+                <Coords points="2878,1609 2893,2723 3569,2723 3554,1609"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="4" rowSpan="1" colSpan="1" id="c_820">
+                <Coords points="3554,1609 3569,2723 3847,2723 3832,1609"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+            <TableCell row="1" col="5" rowSpan="1" colSpan="1" id="c_821">
+                <Coords points="3832,1609 3847,2723 4556,2712 4541,1598"/>
+                <CornerPts>0 1 2 3</CornerPts>
+            </TableCell>
+        </TableRegion>
+    </Page>
+</PcGts>

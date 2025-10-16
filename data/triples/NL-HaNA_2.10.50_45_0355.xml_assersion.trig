@@ -1,0 +1,25 @@
+@prefix ex: <http://example.org/ontology/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+
+<http://example.org/graph/c_818> {
+    <http://example.org/person/2> ex:geboorteDatum "23 december 1771" ;
+        ex:geboortePlaats "S'Hage" ;
+        ex:laatsteWoonplaats "S'Hage" ;
+        ex:moeder "Maria Van Onbeek" ;
+        ex:vader "Coert Hendrik" .
+}
+
+<http://example.org/graph/c_86> {
+    <http://example.org/person/1> ex:geboorteDatum "9 October 1775" ;
+        ex:geboortePlaats "Schoonhoven" ;
+        ex:laatsteWoonplaats "Bruille" ;
+        ex:moeder "Catharina Ballert" ;
+        ex:vader "Jacobus" .
+}
+
+<http://example.org/assertion> {
+    <http://example.org/person/1> a foaf:Person .
+
+    <http://example.org/person/2> a foaf:Person .
+}
+

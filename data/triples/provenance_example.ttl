@@ -1,0 +1,80 @@
+@prefix xsd:  <http://www.w3.org/2001/XMLSchema#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix csvw: <http://www.w3.org/ns/csvw#> .
+@prefix :     <http://example.org#> .
+
+:named_graph
+   a prov:Entity;
+   prov:wasGeneratedBy  :stamboekenKGConstructionActivity;
+   prov:wasDerivedFrom  :cell;
+   prov:wasAttributedTo :sarah;
+.
+
+:stamboekenKGConstructionActivity 
+   a prov:Activity; 
+   prov:used              :stamboeken;
+   prov:wasAssociatedWith :sarah;
+   prov:wasInformedBy     :tableConstructionActivity;
+   prov:wasInformedBy     :informationExtractionnActivity;
+   prov:wasInformedBy     :kgConstructionActivity;
+   prov:endedAtTime      "2025-09-01T12:00:00Z"^^xsd:dateTime;
+   prov:startedAtTime    "2025-09-01T11:00:00Z"^^xsd:dateTime;
+
+.
+
+:sarah
+   a foaf:Person, prov:Agent;
+   foaf:givenName       "Sarah";
+   foaf:mbox            <mailto:sarah@example.org>;
+   prov:actedOnBehalfOf :pressing_matter;
+.
+
+:pressing_matter 
+   a :project, prov:Agent;
+   rdfs:label "Pressing Matter";
+.
+
+:table
+   a prov:Entity;
+   prov:wasGeneratedBy :tableConstructionActivity;
+   prov:wasDerivedFrom :stamboeken;
+   rdfs:label "Extracted Table from given Page of Stamboekn";
+.  
+
+:cell 
+   a csvw:cell, prov:Entity;
+   prov:wasGeneratedBy :tableConstructionActivity;
+   prov:wasDerivedFrom :table;
+   csvw:rowNumber  "5"^^xsd:integer;
+   csvw:columnNumber "2"^^xsd:integer;
+   :imageRegion "1232,1609 1247,2723 1769,2723 1754,1609" ;
+.
+
+:stamboeken
+   a prov:Entity;
+   rdfs:label "Stamboeken Collection";
+   prov:wasAttributedTo :nationalAchive;
+.
+
+:nationalAchive 
+    a foaf:Organization, prov:Agent .
+
+:tableConstructionActivity 
+   a prov:Activity; 
+   prov:used              :stamboeken;
+   prov:wasAssociatedWith :derek;
+   prov:endedAtTime      "2025-08-31T10:00:00Z"^^xsd:dateTime;
+   prov:startedAtTime    "2025-08-31T09:00:00Z"^^xsd:dateTime;
+.
+
+:informationExtractionnActivity
+    a prov:Activity; 
+    prov:used :cell;
+.
+
+:kgConstructionActivity
+    a prov:Activity;
+    prov:used :cell;
+.
