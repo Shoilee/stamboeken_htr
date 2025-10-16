@@ -13,9 +13,7 @@ output/*
 ground_truth.zip
 ground_truth
 bronbeek_stamboeken
-data
 .env
 BoundingBoxDetection
-data/*
 image_samples
 src/LLM_key.py
