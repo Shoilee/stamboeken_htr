@@ -130,6 +130,18 @@
       }
     });
 
+    // Delete selected polygon with Delete or Backspace key ---
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && (activeObj.type === 'polygon' || activeObj.points)) {
+          canvas.remove(activeObj);
+          canvas.discardActiveObject();
+          canvas.renderAll();
+        }
+      }
+    });
+
     init();
   </script>
 </body>
