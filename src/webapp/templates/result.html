@@ -1,0 +1,136 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Result - Edit Polygons</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.2.4/fabric.min.js"></script>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #canvas-container { border: 1px solid #ccc; display:inline-block; }
+    #controls { margin-top: 10px; }
+    button { padding: 8px 12px; margin-right: 8px; }
+  </style>
+</head>
+<body>
+  <h2>Image: {{ image_name }}</h2>
+  <div id="canvas-container">
+    <canvas id="c"></canvas>
+  </div>
+  <div id="controls">
+    <button id="saveBtn">Save Polygons</button>
+    <a href="{{ image_url }}" target="_blank">Open original image</a>
+  </div>
+
+  <script>
+    const imageUrl = "{{ image_url }}";
+    const polygonsUrl = "{{ polygons_url }}";
+    const imageName = "{{ image_name }}";
+
+    const canvas = new fabric.Canvas('c', { selection: true });
+    let imageOriginalWidth = 1;
+    let imageOriginalHeight = 1;
+    let scaleX = 1;
+    let scaleY = 1;
+
+    async function init() {
+      // Fetch polygons
+      let polygons = [];
+      try {
+        const res = await fetch(polygonsUrl);
+        if (res.ok) {
+          polygons = await res.json();
+        } else {
+          console.log("No polygons JSON found yet.");
+        }
+      } catch (err) {
+        console.log("Error fetching polygons:", err);
+      }
+
+      // Load image
+      fabric.Image.fromURL(imageUrl, function (img) {
+        const displayWidth = Math.min(1100, window.innerWidth - 100);
+        imageOriginalWidth = img.width;
+        imageOriginalHeight = img.height;
+
+        // Maintain aspect ratio
+        scaleX = displayWidth / imageOriginalWidth;
+        scaleY = scaleX;
+
+        img.set({ selectable: false });
+        img.scaleX = scaleX;
+        img.scaleY = scaleY;
+
+        // Adjust canvas size
+        canvas.setWidth(img.width * scaleX);
+        canvas.setHeight(img.height * scaleY);
+        canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
+
+        // --- Draw polygons properly aligned ---
+        for (const poly of polygons) {
+          // Scale points
+          const scaledPoints = poly.points.map(p => ({
+            x: p[0] * scaleX,
+            y: p[1] * scaleY
+          }));
+
+          // Compute bounding box of polygon
+          const minX = Math.min(...scaledPoints.map(p => p.x));
+          const minY = Math.min(...scaledPoints.map(p => p.y));
+
+          // Shift points relative to top-left corner (Fabric expects local coordinates)
+          const shiftedPoints = scaledPoints.map(p => ({
+            x: p.x - minX,
+            y: p.y - minY
+          }));
+
+          // Create polygon positioned correctly
+          const fabricPoly = new fabric.Polygon(shiftedPoints, {
+            left: minX,
+            top: minY,
+            fill: 'rgba(255,165,0,0.25)',
+            stroke: 'orange',
+            strokeWidth: 2,
+            objectCaching: false,
+            selectable: true,
+            hasControls: true
+          });
+
+          fabricPoly.cell_id = poly.id;
+          canvas.add(fabricPoly);
+        }
+
+        canvas.renderAll();
+      }, { crossOrigin: 'Anonymous' });
+    }
+
+    // Save polygons
+    document.getElementById('saveBtn').addEventListener('click', async function () {
+      const objects = canvas.getObjects().filter(o => o.type === 'polygon' || o.points);
+      const polygonsToSave = objects.map(o => {
+        const pts = (o.points || o.get('points')).map(pt => {
+          const x = (pt.x + o.left) / scaleX;
+          const y = (pt.y + o.top) / scaleY;
+          return [Math.round(x), Math.round(y)];
+        });
+        return { id: o.cell_id || null, points: pts };
+      });
+
+      const payload = { image: imageName, polygons: polygonsToSave };
+      const res = await fetch("/save_polygons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        alert("Polygons saved!");
+      } else {
+        alert("Save failed: " + (data.error || JSON.stringify(data)));
+      }
+    });
+
+    init();
+  </script>
+</body>
+</html>

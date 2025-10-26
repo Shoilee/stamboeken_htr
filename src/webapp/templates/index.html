@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Upload Image & PageXML</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <h1>Upload image and PageXML</h1>
+  <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+    <label>Image (jpg/png):</label><br>
+    <input type="file" name="image" accept=".jpg,.jpeg,.png" required><br><br>
+    <label>PageXML (optional):</label><br>
+    <input type="file" name="xml" accept=".xml"><br><br>
+    <button type="submit">Upload & View Result</button>
+  </form>
+</body>
+</html>
