@@ -252,6 +252,8 @@ def extract_HTML(text):
 
 def format_td(html):
     html = html.replace("\n", "")
+    html = html.replace(".", "")
+    html = html.replace(".*", "")
     html = html.replace("<thead>", "").replace("</thead>", "")
     html = html.replace("<tbody>", "").replace("</tbody>", "")
     return html
