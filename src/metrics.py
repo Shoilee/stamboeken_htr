@@ -211,3 +211,84 @@ def best_match_similarity(list1, list2):
     return matched_similarities.mean()
 
 
+import numpy as np
+import distance
+from scipy.optimize import linear_sum_assignment
+
+def normalized_edit_distance(a, b):
+    """Compute normalized Levenshtein distance (0–1)."""
+    if not a or not b:
+        return 1.0  # completely dissimilar if one is empty
+    return distance.levenshtein(a.strip().lower(), b.strip().lower()) / max(len(a), len(b))
+
+def person_similarity(p1, p2):
+    """Compute average similarity between two persons (for matching)."""
+    fields = ['vader', 'moeder', 'geboorte_datum', 'geboorte_plaats', 'laatste_woonplaats']
+    sims = []
+    for field in fields:
+        v1 = p1.get(field, {}).get('value')
+        v2 = p2.get(field, {}).get('value')
+        if v1 or v2:
+            d = normalized_edit_distance(v1 or "", v2 or "")
+            sims.append(1 - d)
+    return np.mean(sims) if sims else 0.0
+
+
+def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
+    """Compute overall precision and recall for best-matched persons."""
+    if not list_pred or not list_gt:
+        return 0.0, 0.0
+
+    n, m = len(list_pred), len(list_gt)
+    size = max(n, m)
+
+    # --- Step 1: Build similarity matrix for matching ---
+    sim_matrix = np.zeros((size, size))
+    for i in range(n):
+        for j in range(m):
+            sim_matrix[i, j] = person_similarity(list_pred[i], list_gt[j])
+
+    # --- Step 2: Find best match (Hungarian algorithm) ---
+    cost_matrix = 1.0 - sim_matrix
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+
+    total_precision = 0.0
+    total_recall = 0.0
+
+    for i, j in zip(row_ind, col_ind):
+        if i >= n or j >= m:
+            continue
+
+        person_pred = list_pred[i]
+        person_gt = list_gt[j]
+        pred_fields = [f for f in person_pred.keys() if 'value' in person_pred[f]]
+        gt_fields = [f for f in person_gt.keys() if 'value' in person_gt[f]]
+
+        # --- Count correct matches (field-wise) ---
+        correct_for_precision = 0
+        correct_for_recall = 0
+
+        for field in pred_fields:
+            v1 = person_pred[field].get('value')
+            v2 = person_gt.get(field, {}).get('value')
+            d = 1.0 if (v1 is None or v2 is None) else normalized_edit_distance(v1 or "null", v2 or "null")
+            if d < threshold:
+                correct_for_precision += 1
+        for field in gt_fields:
+            v1 = person_pred.get(field, {}).get('value')
+            v2 = person_gt[field].get('value')
+            d = 1.0 if (v1 is None or v2 is None) else normalized_edit_distance(v1 or "null", v2 or "null")
+            if d < threshold:
+                correct_for_recall += 1
+
+        person_precision = correct_for_precision / len(pred_fields) if pred_fields else 0
+        person_recall = correct_for_recall / len(gt_fields) if gt_fields else 0
+
+        total_precision += person_precision
+        total_recall += person_recall
+
+    # --- Step 3: Macro-averaged Precision and Recall ---
+    overall_precision = total_precision / len(list_pred)
+    overall_recall = total_recall / len(list_gt)
+
+    return round(overall_precision, 4), round(overall_recall, 4)
