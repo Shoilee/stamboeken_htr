@@ -6,7 +6,8 @@ import requests
 import openpyxl
 from lxml import etree
 from tqdm import tqdm
-from image_downlaod.download_control_book import download_image
+from download_control_book import download_image
+import random
 
 
 def parse_html_content(content):
@@ -108,7 +109,17 @@ def download_images_from_excel(input_file, output_directory):
     if not os.path.exists(output_directory):
         os.makedirs(output_directory)
 
-    for row in tqdm(parse_excel_rows(input_file), desc="Processing rows"):
+    # pick random two integer from 1 to 200000
+    random_indices = random.sample(range(1, 200001), 20)
+    print(f"Random indices selected: {random_indices}")
+    counter = 0
+
+    for idx, row in enumerate(tqdm(parse_excel_rows(input_file), desc="Processing rows")):
+        if counter == 20:
+            break
+        if idx not in random_indices:
+            continue
+        counter += 1
         stamboeken_number = row.get("NA_nummer")
         if stamboeken_number and (match := re.search(r'NL-HaNA_(.*?)_(.*?)_.*$', stamboeken_number)):
             archive_number, inventory_number = match.groups()
@@ -131,6 +142,6 @@ def download_images_from_excel(input_file, output_directory):
 
 
 if __name__ == "__main__":
-    INPUT_FILE = '../Bronbeek_Data/Stamboeken_combined.xlsx'
-    OUTPUT_DIRECTORY = '../bronbeek_stamboeken'
+    INPUT_FILE = 'Bronbeek_Data/Stamboeken_combined.xlsx'
+    OUTPUT_DIRECTORY = 'data/images'
     download_images_from_excel(INPUT_FILE, OUTPUT_DIRECTORY)
