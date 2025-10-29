@@ -17,3 +17,5 @@ bronbeek_stamboeken
 BoundingBoxDetection
 image_samples
 src/LLM_key.py
+data/*
+src/webapp/uploads/*
