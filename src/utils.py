@@ -1,5 +1,6 @@
 from shapely.geometry import Polygon
 from lxml import etree
+import json
 import csv
 import os
 import xml.etree.ElementTree as ET
@@ -258,7 +259,49 @@ def format_td(html):
     html = html.replace("<tbody>", "").replace("</tbody>", "")
     return html
 
+def parse_polygon_from_pagexml(file_path):
+    """
+    Returns list of polygons: [{"id": "t1c1", "points": [[x1,y1],[x2,y2],...]]}
+    """
+    ns = {"pc": "http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15"}
+    tree = etree.parse(file_path)
+    root = tree.getroot()
+    polygons = []
+    for cell in root.xpath("//pc:TableCell", namespaces=ns):
+        cell_id = cell.get("id")
+        cell_row = cell.get("row")
+        cell_col = cell.get("col")
+        coords_el = cell.find(".//pc:Coords", namespaces=ns)
+        if coords_el is None:
+            continue
+        points_str = coords_el.get("points")  # e.g. "652,320 652,590 1312,590 1311,320"
+        # Split into x,y pairs
+        pts = []
+        for pair in points_str.strip().split():
+            if ',' in pair:
+                x_str, y_str = pair.split(',', 1)
+                try:
+                    x = float(x_str)
+                    y = float(y_str)
+                    pts.append([x, y])
+                except ValueError:
+                    continue
+        if pts:
+            polygons.append({"id": cell_id, "row":cell_row, "col":cell_col, "points": pts})
+    return polygons
 
+def load_cells(file_path):
+    """Load polygons indexed by (row, col)."""
+    # check if file is in PageXML format
+    if file_path.endswith(".xml"):
+        data = json.dumps(parse_polygon_from_pagexml(file_path))
+        data = json.loads(data)
+    elif file_path.endswith(".json"):
+        with open(file_path, "r") as f:
+            data = json.load(f)
+    else:
+        raise ValueError("Unsupported file format. Use .json or .xml")
+    return {(int(c["row"]), int(c["col"])): Polygon(c["points"]) for c in data}
 
 
 if __name__ == "__main__":

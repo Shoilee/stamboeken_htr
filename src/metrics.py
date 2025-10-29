@@ -8,6 +8,7 @@ from apted import APTED, Config
 from apted.helpers import Tree
 from lxml import etree, html
 from collections import deque
+from utils import load_cells
 
 
 class TableTree(Tree):
@@ -292,3 +293,62 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
     overall_recall = total_recall / len(list_gt)
 
     return round(overall_precision, 4), round(overall_recall, 4)
+
+def iou(poly1, poly2):
+    """Compute IoU between two polygons."""
+    inter = poly1.intersection(poly2).area
+    union = poly1.union(poly2).area
+    return inter / union if union > 0 else 0.0
+
+def precision_recall_for_thresholds(gt_cells, pred_cells, iou_thresholds):
+    """Compute precision and recall per class over multiple IoU thresholds."""
+    results = {}
+    for key, gt_poly in gt_cells.items():
+        pred_poly = pred_cells.get(key)
+        if pred_poly is None:
+            # no prediction for this cell
+            results[key] = {
+                "precision": [0.0] * len(iou_thresholds),
+                "recall": [0.0] * len(iou_thresholds),
+            }
+            continue
+
+        iou_score = iou(gt_poly, pred_poly)
+        precisions = []
+        recalls = []
+
+        for thr in iou_thresholds:
+            match = iou_score >= thr
+            precisions.append(1.0 if match else 0.0)
+            recalls.append(1.0 if match else 0.0)
+
+        results[key] = {
+            "precision": precisions,
+            "recall": recalls,
+        }
+
+    return results
+
+def compute_mAP(gt_file, pred_file, thresholds=np.arange(0.5, 1.0, 0.05)):
+    gt_cells = load_cells(gt_file)
+    pred_cells = load_cells(pred_file)
+
+    results = precision_recall_for_thresholds(gt_cells, pred_cells, thresholds)
+
+    aps = []
+    for key, vals in results.items():
+        # Average precision per class = mean over thresholds
+        ap = np.mean(vals["precision"])  # recall same since 1 GT per class
+        aps.append(ap)
+
+    mean_ap = np.mean(aps) if aps else 0.0
+
+    # print("Per-class average precision:")
+    # for key, vals in results.items():
+    #     print(
+    #         f"  Cell {key}: AP={np.mean(vals['precision']):.3f}, "
+    #         f"Mean IoU-based recall={np.mean(vals['recall']):.3f}"
+    #     )
+
+    print(f"\nFinal Mean Average Precision (mAP): {mean_ap:.4f}")
+    return mean_ap
