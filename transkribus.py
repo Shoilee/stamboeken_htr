@@ -1,0 +1,184 @@
+# %%
+import os
+import json
+from statistics import mean
+from bs4 import BeautifulSoup
+from shapely.geometry import Polygon
+from src.utils import (
+    pagexml_to_html,
+    format_td
+)
+from src.metrics import (
+    compute_mAP,
+    TEDS,
+    infomration_extraction_precision_recall,
+    best_match_similarity
+)
+from src.person_info_extraction import extract_info_LLM
+from statistics import mean
+
+# %%
+DATA_DIR = "data/tables/pagexml"
+GT_POLYGON_DIR = "data/labels/polygons"
+GT_HTML_DIR = "data/labels/tables"
+GT_INFO_DIR = "data/labels/info"
+OUTPUT_HTML_DIR = "data/tables/html"
+OUTPUT_JSON_DIR = "data/json"
+
+# storage for metrics
+all_scores = {
+    "mAP": [],
+    "TEDS": [],
+    "TEDS-Struct": [],
+    "InfoSim": [],
+    "Precision": [],
+    "Recall": []
+}
+
+
+# %% --- Utility Functions ---
+
+def calculate_teds(gt_html, pred_html):
+    """Compute TEDS and TEDS-Struct scores between two HTML tables."""
+    gt_html = format_td(gt_html)
+    teds = TEDS(structure_only=False)
+    teds_struct = TEDS(structure_only=True)
+
+    teds_score = teds.evaluate(gt_html, pred_html)
+    teds_struct_score = teds_struct.evaluate(gt_html, pred_html)
+    return teds_score, teds_struct_score
+
+
+def parse_html_table(html_content):
+    """Parse HTML table into logical rows, respecting rowspan/colspan."""
+    soup = BeautifulSoup(html_content, 'html.parser')
+    rows = soup.find_all('tr')
+
+    logical_rows = []
+    rowspans = {}
+
+    for r_idx, tr in enumerate(rows):
+        current_row = []
+        to_remove = []
+
+        # carry-down cells
+        for col_idx, (remaining, cell) in rowspans.items():
+            current_row.append(cell)
+            rowspans[col_idx][0] -= 1
+            if rowspans[col_idx][0] <= 0:
+                to_remove.append(col_idx)
+        for col_idx in to_remove:
+            del rowspans[col_idx]
+
+        # new cells
+        c_idx = 0
+        for td in tr.find_all('td'):
+            while c_idx in rowspans:
+                c_idx += 1
+            text = td.get_text(" ", strip=True)
+            cell_data = {
+                "text": text,
+                "id": td.get("id"),
+                "row": int(td.get("row", r_idx)),
+                "col": int(td.get("col", c_idx)),
+                "rowspan": int(td.get("rowspan", 1)),
+                "colspan": int(td.get("colspan", 1))
+            }
+            current_row.append(cell_data)
+            if cell_data["rowspan"] > 1:
+                rowspans[c_idx] = [cell_data["rowspan"] - 1, cell_data]
+            c_idx += cell_data["colspan"]
+
+        logical_rows.append(current_row)
+    return logical_rows
+
+
+def extract_persons_from_table(logical_rows):
+    """Extract structured person information from table rows."""
+    persons = []
+    for row in logical_rows:
+        person = json.loads(extract_info_LLM(row))
+        if person and not all(v["value"] is None for v in person.values()):
+            persons.append(person)
+    unique_persons = {json.dumps(p, sort_keys=True) for p in persons}
+    return [json.loads(p) for p in unique_persons]
+
+
+def process_single_image(image_name):
+    """Run the full evaluation pipeline for one image and return metrics."""
+    print("\n===================================")
+    print(f"Processing {image_name}...")
+
+    pagexml_file = os.path.join(DATA_DIR, f"{image_name}.xml")
+    output_html_file = os.path.join(OUTPUT_HTML_DIR, f"{image_name}.html")
+    pagexml_to_html(pagexml_file, output_html_file)
+
+    # --- Compute mAP ---
+    gt_file = os.path.join(GT_POLYGON_DIR, f"{image_name}.polygons.json")
+    pred_file = pagexml_file
+    mAP = compute_mAP(gt_file, pred_file)
+
+    # --- Compute TEDS ---
+    with open(os.path.join(GT_HTML_DIR, f"{image_name}.html"), encoding="utf-8") as f:
+        gt_html = f.read()
+    with open(output_html_file, encoding="utf-8") as f:
+        pred_html = f.read()
+    teds_score, teds_struct_score = calculate_teds(gt_html, pred_html)
+
+    # --- Information Extraction ---
+    logical_rows = parse_html_table(pred_html)
+    persons = extract_persons_from_table(logical_rows)
+    json_obj = {"persons": persons}
+    json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
+    with open(json_out_path, "w", encoding="utf-8") as jf:
+        json.dump(json_obj, jf, ensure_ascii=False, indent=2)
+
+    # --- Compare with Ground Truth JSON ---
+    with open(os.path.join(GT_INFO_DIR, f"{image_name.replace('.jpg', '.json')}"), encoding="utf-8") as f:
+        gt_info = json.load(f)
+    with open(json_out_path, encoding="utf-8") as f:
+        pred_info = json.load(f)
+
+    info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
+    precision, recall = infomration_extraction_precision_recall(
+        gt_info.get("persons", []), pred_info.get("persons", []), threshold=0.4
+    )
+
+    # print(f"Final Mean Average Precision (mAP): {mAP:.4f}")
+    # print(f"TEDS: {teds_score:.4f}")
+    # print(f"TEDS-Struct: {teds_struct_score:.4f}")
+    # print(f"Information Extraction Similarity Score: {info_sim:.4f}")
+    # print(f"Information Extraction: Precision: {precision:.4f}, Recall: {recall:.4f}")
+
+    return mAP, teds_score, teds_struct_score, info_sim, precision, recall
+
+
+# %% --- Main Execution Loop ---
+
+def main():
+    for file in os.listdir(DATA_DIR): 
+        if not file.endswith(".xml"): 
+            continue 
+
+        image_name = file.replace(".xml", "") 
+
+        try: 
+            mAP, teds, teds_struct, info_sim, p, r = process_single_image(image_name) 
+            all_scores["mAP"].append(mAP) 
+            all_scores["TEDS"].append(teds) 
+            all_scores["TEDS-Struct"].append(teds_struct) 
+            all_scores["InfoSim"].append(info_sim) 
+            all_scores["Precision"].append(p) 
+            all_scores["Recall"].append(r) 
+        except Exception as e: 
+            print(f"❌ Error processing {image_name}: {e}") 
+
+    # --- Print summary averages ---
+    print("\n===================================") 
+    print("=== Average Metrics Across All Images ===") 
+    for key, vals in all_scores.items(): 
+        avg = mean(vals) if vals else 0.0 
+        print(f"{key}: {avg:.4f}")
+
+if __name__ == "__main__":
+    main()
