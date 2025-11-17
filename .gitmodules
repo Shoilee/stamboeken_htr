@@ -1,6 +1,7 @@
 [submodule "loghi"]
 	path = loghi
 	url = git@github.com:knaw-huc/loghi.git
+	ignore = dirty
 [submodule "Image2TableBoundingBoxDetection"]
 	path = Image2TableBoundingBoxDetection
 	url = git@github.com:Shoilee/Image2TableBoundingBoxDetection.git
@@ -8,3 +9,4 @@
 [submodule "Image2Table_LLM"]
 	path = Image2Table_LLM
 	url = git@github.com:Shoilee/Image2Table-reconstruction-with-llm.git
+	ignore = dirty
