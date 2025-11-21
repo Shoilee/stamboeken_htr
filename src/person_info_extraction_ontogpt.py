@@ -189,6 +189,7 @@ def convert_yaml_to_json(yaml_path, json_output):
     if not isinstance(named_entities_raw, list):
         print("Warning: YAML has no 'named_entities'. Using empty list.")
         named_entities = []
+        return
     else:
         named_entities = named_entities_raw
 
