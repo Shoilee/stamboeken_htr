@@ -224,7 +224,7 @@ def normalized_edit_distance(a, b):
 
 def person_similarity(p1, p2):
     """Compute average similarity between two persons (for matching)."""
-    fields = ['vader', 'moeder', 'geboorte_datum', 'geboorte_plaats', 'laatste_woonplaats']
+    fields = [f for f in p2.keys() if 'value' in p2[f]]
     sims = []
     for field in fields:
         v1 = p1.get(field, {}).get('value')
