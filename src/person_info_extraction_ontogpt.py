@@ -1,221 +1,232 @@
-import yaml
 import os
+import yaml
+import json
+import shutil
 import subprocess
+from copy import deepcopy
 
 
-def generate_text(logical_rows, temp_path="../data/temp/"):
-    import yaml
+# ============================================================
+# File + Path Utilities
+# ============================================================
 
-    cell_spans = []     # list of dicts: {id, start, end}
-    row_text = ""       # concatenated text of the entire table
-    cursor = 0          # tracks current char offset
-
-    if not os.path.exists(temp_path):
-        os.makedirs(temp_path)
-
-    for i, row in enumerate(logical_rows):
-        # TODO: update the code, so that it can run for more than one person / row
-        if i != 1:
-            continue
-        for cell in row:
-            text = cell["text"]
-            cid = cell["id"]
-
-            start = cursor
-            end = start + len(text)
-
-            cell_spans.append({
-                "id": cid,
-                "start": start,
-                "end": end,
-                "text": text
-            })
-
-            row_text += text + '\n'
-            cursor = end
-        with open(os.path.join(temp_path , "table_cells.yaml"), "w+", encoding="utf-8") as f:
-            yaml.dump(cell_spans, f, allow_unicode=True, sort_keys=False)
-
-        with open(os.path.join(temp_path, "row.txt"), "w+") as f:
-            f.write(row_text)
+def ensure_dir(path: str):
+    """Ensure a directory exists."""
+    os.makedirs(path, exist_ok=True)
 
 
-def run_ontogpt(input_path="row.txt",
-                output="person.yaml",
-                template="personbasicinfo.yaml",
-                model="ollama/llama3",
-                cwd=None,
-                env=None):
-    
-    # input_path = os.path.join(cwd, input_path)
-    # output = os.path.join(cwd, output)
+def load_yaml(path: str):
+    """Load YAML from file."""
+    with open(path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
+
+def write_yaml(path: str, data):
+    """Write YAML to file."""
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump(data, f, allow_unicode=True, sort_keys=False)
+
+
+def write_text(path: str, text: str):
+    with open(path, "w", encoding="utf-8") as f:
+        f.write(text)
+
+
+def write_json(path: str, data):
+    with open(path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+# ============================================================
+# Step 1 — Extract Text & Cell Spans
+# ============================================================
+
+def extract_text_and_spans(row, out_dir):
+    """
+    Convert OCR table rows → flat text + span mapping.
+    Only processes row index 1 (as per original behaviour).
+    """
+
+    ensure_dir(out_dir)
+    row_text = ""
+    cursor = 0
+    cell_spans = []
+
+    for cell in row:
+        text = cell["text"]
+        cid = cell["id"]
+        start = cursor
+        end = start + len(text)
+
+        cell_spans.append({"id": cid, "start": start, "end": end, "text": text})
+
+        row_text += text + "\n"
+        cursor = end
+
+    write_yaml(os.path.join(out_dir, "table_cells.yaml"), cell_spans)
+    write_text(os.path.join(out_dir, "row.txt"), row_text)
+
+
+# ============================================================
+# Step 2 — Run OntoGPT
+# ============================================================
+
+def run_ontogpt(template, cwd, input_file="row.txt", output_file="person.yaml",
+                model="ollama/llama3"):
+    """
+    Executes OntoGPT extraction.
+    """
     print("Running OntoGPT...")
 
-    cmd = ["ontogpt", "extract", "-i", input_path, "-t", template, "-m", model, "-o", output]
-    proc = subprocess.run(cmd, cwd=cwd, env=env, capture_output=True, text=True)
+    cmd = [
+        "ontogpt", "extract",
+        "-i", input_file,
+        "-t", template,
+        "-m", model,
+        "-o", output_file
+    ]
+
+    proc = subprocess.run(cmd, cwd=cwd, capture_output=True, text=True)
+
     if proc.returncode != 0:
-        print("ontogpt failed (rc={}):".format(proc.returncode))
         print(proc.stderr)
-        raise RuntimeError("ontogpt command failed")
+        raise RuntimeError(f"OntoGPT failed: rc={proc.returncode}")
+
     print(proc.stdout)
-    return proc
+    return os.path.join(cwd, output_file)
 
 
-def map_text_spans_to_cell(yaml_path, cells_path:yaml):
-    def find_cell_for_span(start, spans):
-        """
-        Return the cell_id whose text covers the character span starting at 'start'.
-        Span belongs to the cell where:  cell.start <= start < cell.end
-        """
-        for item in spans:
-            if item["start"] <= start < item["end"]:
-                return item["id"]
-        return None
-    
-    with open(yaml_path, "r", encoding="utf-8") as f:
-        data = yaml.safe_load(f)
+# ============================================================
+# Step 3 — Map Text Spans → Cell IDs
+# ============================================================
+
+def find_cell_for_span(start, spans):
+    """Return the cell ID covering a character offset."""
+    for item in spans:
+        if item["start"] <= start < item["end"]:
+            return item["id"]
+    return None
+
+
+def map_text_spans_to_cells(yaml_path, cells_path):
+    """
+    Merges OntoGPT YAML with provenance mapping to cell IDs.
+    """
+
+    data = load_yaml(yaml_path)
+    cell_spans = load_yaml(cells_path)
 
     named_entities = data.get("named_entities", [])
 
-    with open(cells_path, "r", encoding="utf-8") as f:
-        cell_spans = yaml.safe_load(f)
-
     for ent in named_entities:
-        spans = ent.get("original_spans", [])
-        ent_cells = []
+        span_list = ent.get("original_spans", [])
+        mapped_cells = []
 
-        for span_str in spans:
+        for span_str in span_list:
             try:
-                start, end = map(int, span_str.split(":"))
-            except:
+                start, _ = map(int, span_str.split(":"))
+            except ValueError:
                 continue
 
-            cell_id = find_cell_for_span(start, cell_spans)
-            ent_cells.append(cell_id)
+            cid = find_cell_for_span(start, cell_spans)
+            mapped_cells.append(cid)
 
-        # Add new slot "cell"
-        if ent_cells:
-            # if only one span, store a single value
-            ent["cell"] = ent_cells[0] if len(ent_cells) == 1 else ent_cells
-        else:
-            ent["cell"] = None
+        ent["cell"] = mapped_cells[0] if len(mapped_cells) == 1 else mapped_cells or None
+
+    write_yaml(yaml_path, data)
 
 
-    output_path = yaml_path
-    with open(output_path, "w", encoding="utf-8") as f:
-        yaml.dump(data, f, sort_keys=False, allow_unicode=True)
+# ============================================================
+# Step 4 — Convert YAML → Normalised JSON
+# ============================================================
 
-
-# %%
-def convert_yaml_to_json(yaml_path, json_out):
-    import yaml
-    import json
-    from copy import deepcopy
-
-
-    def load_yaml(path):
-        with open(path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f)
-
-
-    def get_entity_for_value(raw_value, named_entities):
-        """
-        Given a raw value like 'AUTO:Wageningen',
-        return the full named_entity dict (label, cell, original_spans),
-        or None if not found.
-        """
-        if not isinstance(raw_value, str):
-            return None
-
-        for ent in named_entities:
-            if ent.get("id") == raw_value:
-                return ent
-
+def match_entity(raw_value, named_entities):
+    """Return named_entity object if raw_value matches auto-ID."""
+    if not isinstance(raw_value, str):
         return None
 
+    return next(
+        (ent for ent in named_entities if ent.get("id") == raw_value), None
+    )
 
-    def process_field(value, named_entities):
-        """
-        Converts a YAML value into normalized JSON format with:
-        - value
-        - cell
-        - original_spans
-        Handles nested dicts.
-        """
 
-        # Case 1: nested dict → process each subfield recursively
-        if isinstance(value, dict):
-            processed = {}
-            for k, v in value.items():
-                processed[k] = process_field(v, named_entities)
-            return processed
+def process_value(value, named_entities):
+    """Recursive converter for values."""
 
-        # Case 2: literal field or AUTO reference
-        ent = get_entity_for_value(value, named_entities)
+    if isinstance(value, dict):
+        return {k: process_value(v, named_entities) for k, v in value.items()}
 
-        if ent:
-            # match found: use curated label + provenance
-            return {
-                "value": ent.get("label"),
-                "cell": ent.get("cell"),
-                "original_spans": ent.get("original_spans")
-            }
+    ent = match_entity(value, named_entities)
 
-        # No entity match → raw literal value
+    if ent:
         return {
-            "value": value,
-            "cell": None,
-            "original_spans": None
+            "value": ent.get("label"),
+            "cell": ent.get("cell"),
+            "original_spans": ent.get("original_spans"),
         }
 
-
-    def convert_yaml_to_person_json(data):
-        extracted = deepcopy(data["extracted_object"])
-        named_entities = data["named_entities"]
-
-        person = {}
-
-        # Process all fields dynamically
-        for key, value in extracted.items():
-            person[key] = process_field(value, named_entities)
-
-        return {"persons": [person]}
+    return {"value": value, "cell": None, "original_spans": None}
 
 
-    def write_json(path, obj):
-        print("Writing JSON to", path)
-        with open(path, "w+", encoding="utf-8") as f:
-            json.dump(obj, f, indent=2, ensure_ascii=False)
-
+def convert_yaml_to_json(yaml_path, json_output):
+    """
+    Converts OntoGPT YAML output into normalized JSON.
+    This version safely handles cases where extracted_object
+    or named_entities are missing or malformed.
+    """
 
     data = load_yaml(yaml_path)
-    result = convert_yaml_to_person_json(data)
-    write_json(json_out, result)
 
-    # print(json.dumps(result, indent=2, ensure_ascii=False))
+    extracted_raw = data.get("extracted_object")
+    if not isinstance(extracted_raw, dict):
+        print("Warning: YAML has no 'extracted_object'. Returning empty person.")
+        extracted = {}
+        return
+    else:
+        extracted = deepcopy(extracted_raw)
+
+    named_entities_raw = data.get("named_entities")
+    if not isinstance(named_entities_raw, list):
+        print("Warning: YAML has no 'named_entities'. Using empty list.")
+        named_entities = []
+    else:
+        named_entities = named_entities_raw
+
+    person = {
+        key: process_value(value, named_entities)
+        for key, value in extracted.items()
+    }
+
+    write_json(json_output, {"persons": [person]})
 
 
-def person_info_extraction_ontogpt(logical_rows, schema,  output_json, temp_dir="temp/"):
-    if not os.path.exists(temp_dir):
-        os.makedirs(temp_dir)
 
-    yaml_path = os.path.join(temp_dir, "person.yaml")
+# ============================================================
+# Step 5 — High-level Orchestration
+# ============================================================
 
-    # 1. Generate text file and cell spans
-    generate_text(logical_rows, temp_path=temp_dir)
+def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/"):
+    """End-to-end person extraction pipeline."""
 
-    # 2. Run OntoGPT
-    schema_dest = os.path.join(temp_dir, os.path.basename(schema))
-    subprocess.run(["cp", schema, schema_dest])
-    schema = os.path.basename(schema)
-    run_ontogpt(template=schema ,cwd=temp_dir)
+    ensure_dir(temp_dir)
 
-    # 3. Map text spans to cell ids
-    map_text_spans_to_cell(os.path.join(temp_dir, "person.yaml"), os.path.join(temp_dir, "table_cells.yaml"))
-    
-    # 4. Convert final YAML to JSON
-    convert_yaml_to_json(yaml_path, output_json)
+    # Step 1: Prepare text + spans
+    extract_text_and_spans(logical_rows, temp_dir)
 
-    # 5. Delete temp files
-    subprocess.run(["rm", "-r", temp_dir])
+    # Step 2: Copy schema locally
+    schema_copy = os.path.join(temp_dir, os.path.basename(schema_path))
+    shutil.copy(schema_path, schema_copy)
+    schema_name = os.path.basename(schema_copy)
+
+    # Step 3: Run OntoGPT
+    yaml_path = run_ontogpt(template=schema_name, cwd=temp_dir)
+
+    # Step 4: Add provenance
+    map_text_spans_to_cells(
+        yaml_path,
+        os.path.join(temp_dir, "table_cells.yaml")
+    )
+
+    # Step 5: Convert to JSON
+    convert_yaml_to_json(yaml_path, json_output)
+
