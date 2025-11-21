@@ -1,0 +1,132 @@
+id: https://pressingmatter.nl/personbaiscinfo
+name: personbasicinfo
+prefixes:
+  schema: https://schema.org/
+  pvn: https://personvocab.nl/
+  dbo: http://dbpedia.org/ontology/
+  rdfs: http://www.w3.org/2000/01/rdf-schema#
+  linkml: https://w3id.org/linkml/
+  personbasicinfo: https://pressingmatter.nl/personbaiscinfo
+  HANDLE : https://hdl.handle.net/
+  GEONAMES: http://sws.geonames.org/
+  EX: https://www.example.com/
+imports:
+  - linkml:types
+  - core
+
+default_range: string
+default_prefix: EX            
+
+classes:    
+    Person:
+        tree_root: true
+        is_a: CompoundExpression
+        description: >-
+            Represents a military person with thier name, nationality, military rank, birthplace, deathplace.
+        attributes:
+            id:
+                description: >-
+                    A unique identifier for the person.
+                identifier: true
+                range: string
+                annotations:
+                    prompt: "generate a unique identifier with the person's and dob (firstname_lastname_DD-MM-YYYY)"
+        
+            name:
+                description: >-
+                    The name of the person.
+                range: Name
+                slot_uri: pvn:hasName
+
+            date_of_birth: 
+                description: >-
+                    The date of birth for the person.
+                range: Date
+                annotations:
+                    prompt: "Date when the person was born"
+
+            birth_place:
+                description: >-
+                    The birthplace of the person.
+                range: Place
+                slot_uri: schema:birthPlace
+                annotations:
+                    prompt: "Place name where the person was born"
+                
+            last_residence:
+                description: >-
+                    The last residence of the person.
+                range: Place
+                slot_uri: schema:homeLocation
+                annotations:
+                    prompt: "Last residence or location where the person lived"
+                    prompt.examples: Rotterdam; Wageningen
+
+            country_of_nationality:
+                description: >-
+                    The nationality of the person.
+                range: Place
+                slot_uri: schema:nationality
+                annotations:
+                    prompt: "infer the country name of the person based on their birthplace"
+                    annotaotr: Netherlands; England; france
+
+            military_rank:
+                description: >-
+                    The military rank of the person.
+                range: Rank
+                slot_uri: dbo:militaryRank
+                annotations:
+                    prompt: "last military rank of the person based on their service details"
+                    prompt.examples: Cadet; Sergeant; 2e Lieutenant
+
+    Place:
+        is_a: NamedEntity
+        attributes:
+            label:
+                description: >-
+                    The name of the geographical location.
+                slot_uri: schema:name
+                range: string
+    
+    Date:
+        is_a: NamedEntity
+        attributes:
+            label:
+                description: >-
+                    The date of the event.
+                range: string
+
+    Rank:
+        is_a: NamedEntity
+        attributes:
+            label:
+                description: >-
+                    The label of the military rank.
+                range: string
+                slot_uri: rdfs:label
+
+    Name: 
+        is_a: NamedEntity
+        attributes:
+            id:
+                description: >-
+                    A unique identifier for the name.
+                range: string
+                annotations:
+                    prompt: "generate a unique identifier for the name based on the person's full name"
+            basesurname:
+                description: >-
+                    The base surname name of the person.
+                range: string
+                slot_uri: pvn:baseName
+            firstnames:
+                description: >-
+                    The first name(s) of the person.
+                range: string
+                slot_uri: pvn:firstName
+            infix:
+                description: >-
+                    The infix of the person's name (e.g., "van", "de").
+                range: string
+                slot_uri: pvn:infix

@@ -18,4 +18,5 @@ BoundingBoxDetection
 image_samples
 src/LLM_key.py
 data/*
+!data/schema/
 src/webapp/uploads/*
