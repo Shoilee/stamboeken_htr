@@ -19,6 +19,8 @@ def parse_pagexml(file_path):
     polygons = []
     for cell in root.xpath("//pc:TableCell", namespaces=ns):
         cell_id = cell.get("id")
+        cell_row = cell.get("row")
+        cell_col = cell.get("col")
         coords_el = cell.find(".//pc:Coords", namespaces=ns)
         if coords_el is None:
             continue
@@ -35,7 +37,7 @@ def parse_pagexml(file_path):
                 except ValueError:
                     continue
         if pts:
-            polygons.append({"id": cell_id, "points": pts})
+            polygons.append({"id": cell_id, "row":cell_row, "col":cell_col, "points": pts})
     return polygons
 
 # Route: serve uploaded files (images)

@@ -32,16 +32,15 @@
     let scaleX = 1;
     let scaleY = 1;
 
+    // Track polygons that were changed or deleted
+    const polygonsModified = new Set();
+
     async function init() {
-      // Fetch polygons
       let polygons = [];
       try {
         const res = await fetch(polygonsUrl);
-        if (res.ok) {
-          polygons = await res.json();
-        } else {
-          console.log("No polygons JSON found yet.");
-        }
+        if (res.ok) polygons = await res.json();
+        else console.log("No polygons JSON found yet.");
       } catch (err) {
         console.log("Error fetching polygons:", err);
       }
@@ -65,7 +64,7 @@
         canvas.setHeight(img.height * scaleY);
         canvas.setBackgroundImage(img, canvas.renderAll.bind(canvas));
 
-        // --- Draw polygons properly aligned ---
+        // Draw polygons
         for (const poly of polygons) {
           // Scale points
           const scaledPoints = poly.points.map(p => ({
@@ -95,7 +94,11 @@
             hasControls: true
           });
 
-          fabricPoly.cell_id = poly.id;
+          // Preserve metadata
+        fabricPoly.cell_id = poly.id;
+        fabricPoly.cell_row = poly.row;
+        fabricPoly.cell_col = poly.col;
+
           canvas.add(fabricPoly);
         }
 
@@ -103,19 +106,64 @@
       }, { crossOrigin: 'Anonymous' });
     }
 
-    // Save polygons
-    document.getElementById('saveBtn').addEventListener('click', async function () {
+    // Track modifications: move, scale, rotate, or reshape
+    canvas.on('object:modified', e => {
+      const obj = e.target;
+      if (obj && (obj.type === 'polygon' || obj.points)) {
+        console.log("Polygon modified:", obj.cell_id);
+        polygonsModified.add(obj);
+      }
+    });
+
+    // Delete polygon with Delete/Backspace key
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const activeObj = canvas.getActiveObject();
+        if (activeObj && (activeObj.type === 'polygon' || activeObj.points)) {
+          canvas.remove(activeObj);
+          polygonsModified.add(activeObj); // mark deleted
+          canvas.discardActiveObject();
+          canvas.renderAll();
+        }
+      }
+    });
+
+    // TODO: Add new polygon adding functionality
+
+    // Save polygons (updated + deleted)
+    document.getElementById('saveBtn').addEventListener('click', async () => {
       const objects = canvas.getObjects().filter(o => o.type === 'polygon' || o.points);
+
+      // Convert all polygons to original image coordinates
       const polygonsToSave = objects.map(o => {
-        const pts = (o.points || o.get('points')).map(pt => {
-          const x = (pt.x + o.left) / scaleX;
-          const y = (pt.y + o.top) / scaleY;
-          return [Math.round(x), Math.round(y)];
-        });
-        return { id: o.cell_id || null, points: pts };
+        // console.log(o.left, o.top, o.points);
+        const matrix = o.calcTransformMatrix();
+
+    // Transform each point from local to canvas space
+    const pts = (o.points || o.get('points')).map(pt => {
+      const transformed = fabric.util.transformPoint(
+        new fabric.Point(pt.x - o.pathOffset.x, pt.y - o.pathOffset.y),
+        matrix
+      );
+      // Convert back to original image coordinates
+      const x = transformed.x / scaleX;
+      const y = transformed.y / scaleY;
+      return [Math.round(x), Math.round(y)];
+      });
+        return {
+          id: o.cell_id || null,
+          row: o.cell_row || null,
+          col: o.cell_col || null,
+          points: pts
+        };
       });
 
-      const payload = { image: imageName, polygons: polygonsToSave };
+      const payload = {
+        image: imageName,
+        polygons: polygonsToSave
+      };
+
+      console.log("Saving polygons payload:", payload);
       const res = await fetch("/save_polygons", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -125,20 +173,9 @@
       const data = await res.json();
       if (res.ok) {
         alert("Polygons saved!");
+        polygonsModified.clear();
       } else {
         alert("Save failed: " + (data.error || JSON.stringify(data)));
-      }
-    });
-
-    // Delete selected polygon with Delete or Backspace key ---
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Delete' || e.key === 'Backspace') {
-        const activeObj = canvas.getActiveObject();
-        if (activeObj && (activeObj.type === 'polygon' || activeObj.points)) {
-          canvas.remove(activeObj);
-          canvas.discardActiveObject();
-          canvas.renderAll();
-        }
       }
     });
 
