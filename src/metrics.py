@@ -222,39 +222,72 @@ def normalized_edit_distance(a, b):
         return 1.0  # completely dissimilar if one is empty
     return distance.levenshtein(a.strip().lower(), b.strip().lower()) / max(len(a), len(b))
 
+def extract_value_paths(obj, prefix=""):
+    paths = []
+
+    if isinstance(obj, dict):
+        for key, val in obj.items():
+            current_path = f"{prefix}.{key}" if prefix else key
+            if isinstance(val, dict):
+                if "value" in val:
+                    paths.append(current_path)
+                paths.extend(extract_value_paths(val, current_path))
+
+    return paths
+
+
+def get_nested_value(obj, path):
+    keys = path.split(".")
+    node = obj
+
+    for k in keys:
+        if not isinstance(node, dict) or k not in node:
+            return None
+        node = node[k]
+
+    if isinstance(node, dict):
+        return node.get("value")
+    return None
+
+
 def person_similarity(p1, p2):
-    """Compute average similarity between two persons (for matching)."""
-    fields = [f for f in p2.keys() if 'value' in p2[f]]
+    fields = extract_value_paths(p2)
+
     sims = []
-    for field in fields:
-        v1 = p1.get(field, {}).get('value')
-        v2 = p2.get(field, {}).get('value')
-        if v1 or v2:
-            d = normalized_edit_distance(v1 or "", v2 or "")
-            sims.append(1 - d)
+    for field_path in fields:
+        v1 = get_nested_value(p1, field_path)
+        v2 = get_nested_value(p2, field_path)
+
+        if not v1 and not v2:
+            continue
+
+        d = normalized_edit_distance(v1 or "", v2 or "")
+        sims.append(1 - d)
+
     return np.mean(sims) if sims else 0.0
 
 
 def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
-    """Compute overall precision and recall for best-matched persons."""
+    """Compute overall precision, recall, and accuracy for best-matched persons."""
     if not list_pred or not list_gt:
-        return 0.0, 0.0
+        return 0.0, 0.0, 0.0
 
     n, m = len(list_pred), len(list_gt)
     size = max(n, m)
 
-    # --- Step 1: Build similarity matrix for matching ---
+    # --- Step 1: Similarity matrix for Hungarian matching ---
     sim_matrix = np.zeros((size, size))
     for i in range(n):
         for j in range(m):
             sim_matrix[i, j] = person_similarity(list_pred[i], list_gt[j])
 
-    # --- Step 2: Find best match (Hungarian algorithm) ---
+    # --- Step 2: Hungarian algorithm ---
     cost_matrix = 1.0 - sim_matrix
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
 
     total_precision = 0.0
     total_recall = 0.0
+    total_accuracy = 0.0
 
     for i, j in zip(row_ind, col_ind):
         if i >= n or j >= m:
@@ -262,37 +295,53 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
 
         person_pred = list_pred[i]
         person_gt = list_gt[j]
-        pred_fields = [f for f in person_pred.keys() if 'value' in person_pred[f]]
-        gt_fields = [f for f in person_gt.keys() if 'value' in person_gt[f]]
 
-        # --- Count correct matches (field-wise) ---
-        correct_for_precision = 0
-        correct_for_recall = 0
+        pred_fields = extract_value_paths(person_pred)
+        gt_fields = extract_value_paths(person_gt)
 
-        for field in pred_fields:
-            v1 = person_pred[field].get('value')
-            v2 = person_gt.get(field, {}).get('value')
-            d = 1.0 if (v1 is None or v2 is None) else normalized_edit_distance(v1 or "null", v2 or "null")
-            if d < threshold:
-                correct_for_precision += 1
-        for field in gt_fields:
-            v1 = person_pred.get(field, {}).get('value')
-            v2 = person_gt[field].get('value')
-            d = 1.0 if (v1 is None or v2 is None) else normalized_edit_distance(v1 or "null", v2 or "null")
-            if d < threshold:
-                correct_for_recall += 1
+        # --- Field-level counts ---
+        correct_precision = 0
+        correct_recall = 0
+        correct_accuracy = 0  # new
 
-        person_precision = correct_for_precision / len(pred_fields) if pred_fields else 0
-        person_recall = correct_for_recall / len(gt_fields) if gt_fields else 0
+        # Precision (Pred → GT)
+        for field_path in pred_fields:
+            v1 = get_nested_value(person_pred, field_path)
+            v2 = get_nested_value(person_gt, field_path)
+            if v1 or v2:
+                d = normalized_edit_distance(v1 or "", v2 or "")
+                if d < threshold:
+                    correct_precision += 1
+
+        # Recall (GT → Pred)
+        for field_path in gt_fields:
+            v1 = get_nested_value(person_pred, field_path)
+            v2 = get_nested_value(person_gt, field_path)
+            if v1 or v2:
+                d = normalized_edit_distance(v1 or "", v2 or "")
+                if d < threshold:
+                    correct_recall += 1
+                    correct_accuracy += 1  # accuracy counts correct GT matches
+
+        # Compute person-level metrics
+        person_precision = correct_precision / len(pred_fields) if pred_fields else 0
+        person_recall = correct_recall / len(gt_fields) if gt_fields else 0
+        person_accuracy = correct_accuracy / len(gt_fields) if gt_fields else 0
 
         total_precision += person_precision
         total_recall += person_recall
+        total_accuracy += person_accuracy
 
-    # --- Step 3: Macro-averaged Precision and Recall ---
+    # --- Macro-average scores ---
     overall_precision = total_precision / len(list_pred)
     overall_recall = total_recall / len(list_gt)
+    overall_accuracy = total_accuracy / len(list_gt)
 
-    return round(overall_precision, 4), round(overall_recall, 4)
+    return (
+        round(overall_precision, 4),
+        round(overall_recall, 4),
+        round(overall_accuracy, 4),
+    )
 
 def iou(poly1, poly2):
     """Compute IoU between two polygons."""

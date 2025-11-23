@@ -175,7 +175,7 @@ def process_single_image(image_name, IE_method="ontogpt"):
         pred_info = json.load(f)
 
     # info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
-    precision, recall = infomration_extraction_precision_recall(
+    precision, recall, accuracy = infomration_extraction_precision_recall(
         gt_info.get("persons", []), pred_info.get("persons", []), threshold=0.4
     )
 
@@ -185,7 +185,7 @@ def process_single_image(image_name, IE_method="ontogpt"):
     # print(f"Information Extraction Similarity Score: {info_sim:.4f}")
     # print(f"Information Extraction: Precision: {precision:.4f}, Recall: {recall:.4f}")
 
-    return mAP, teds_score, teds_struct_score, precision, recall
+    return mAP, teds_score, teds_struct_score, precision, recall, accuracy
 
 
 # %% --- Main Execution Loop ---
