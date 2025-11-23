@@ -37,7 +37,8 @@ all_scores = {
     "TEDS-Struct": [],
     # "InfoSim": [],
     "Precision": [],
-    "Recall": []
+    "Recall": [],
+    "Accuracy": []
 }
 
 
@@ -179,11 +180,10 @@ def process_single_image(image_name, IE_method="ontogpt"):
         gt_info.get("persons", []), pred_info.get("persons", []), threshold=0.4
     )
 
-    # print(f"Final Mean Average Precision (mAP): {mAP:.4f}")
-    # print(f"TEDS: {teds_score:.4f}")
-    # print(f"TEDS-Struct: {teds_struct_score:.4f}")
-    # print(f"Information Extraction Similarity Score: {info_sim:.4f}")
-    # print(f"Information Extraction: Precision: {precision:.4f}, Recall: {recall:.4f}")
+    print(f"Final Mean Average Precision (mAP): {mAP:.4f}")
+    print(f"TEDS: {teds_score:.4f}")
+    print(f"TEDS-Struct: {teds_struct_score:.4f}")
+    print(f"Information Extraction - \nPrecision: {precision:.4f}, \nRecall: {recall:.4f}, \nAccuracy: {accuracy:.4f}")
 
     return mAP, teds_score, teds_struct_score, precision, recall, accuracy
 
@@ -198,13 +198,15 @@ def main():
         image_name = file.replace(".xml", "") 
 
         try: 
-            mAP, teds, teds_struct, p, r = process_single_image(image_name) 
+            mAP, teds, teds_struct, p, r , a= process_single_image(image_name) 
             all_scores["mAP"].append(mAP) 
             all_scores["TEDS"].append(teds) 
             all_scores["TEDS-Struct"].append(teds_struct) 
             # all_scores["InfoSim"].append(info_sim) 
             all_scores["Precision"].append(p) 
             all_scores["Recall"].append(r) 
+            all_scores["Accuracy"].append(a) 
+            print(f"✅ Finished processing {image_name}")
         except Exception as e: 
             print(f"❌ Error processing {image_name}: {e}") 
 
