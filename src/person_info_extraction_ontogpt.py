@@ -127,6 +127,8 @@ def map_text_spans_to_cells(yaml_path, cells_path):
                 start, _ = map(int, span_str.split(":"))
             except ValueError:
                 continue
+            except AttributeError:
+                continue
 
             cid = find_cell_for_span(start, cell_spans)
             mapped_cells.append(cid)
