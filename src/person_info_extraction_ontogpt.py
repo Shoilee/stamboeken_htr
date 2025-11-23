@@ -208,7 +208,7 @@ def convert_yaml_to_json(yaml_path, json_output):
 # Step 5 — High-level Orchestration
 # ============================================================
 
-def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/"):
+def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/", llm_model="ollama/llama3"):
     """End-to-end person extraction pipeline."""
 
     ensure_dir(temp_dir)
@@ -222,7 +222,7 @@ def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/"
     schema_name = os.path.basename(schema_copy)
 
     # Step 3: Run OntoGPT
-    yaml_path = run_ontogpt(template=schema_name, cwd=temp_dir)
+    yaml_path = run_ontogpt(template=schema_name, cwd=temp_dir, model=llm_model)
 
     # Step 4: Add provenance
     map_text_spans_to_cells(
