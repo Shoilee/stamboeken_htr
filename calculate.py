@@ -163,11 +163,11 @@ def main():
         image_name = file.replace(".xml", "") 
 
         try: 
-            mAP, teds, teds_struct, info_sim, p, r = process_single_image(image_name) 
+            mAP, teds, teds_struct, p, r = process_single_image(image_name) 
             all_scores["mAP"].append(mAP) 
             all_scores["TEDS"].append(teds) 
             all_scores["TEDS-Struct"].append(teds_struct) 
-            all_scores["InfoSim"].append(info_sim) 
+            # all_scores["InfoSim"].append(info_sim) 
             all_scores["Precision"].append(p) 
             all_scores["Recall"].append(r) 
         except Exception as e: 
