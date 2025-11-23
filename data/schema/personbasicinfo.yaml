@@ -44,6 +44,7 @@ classes:
                 range: Date
                 annotations:
                     prompt: "Date when the person was born"
+                    prompt.examples: 15 October 1797; 11e Maart 1789; 14 Junij 1785 ; 5 Januarij 1788 ;
 
             birth_place:
                 description: >-
@@ -78,7 +79,7 @@ classes:
                 slot_uri: dbo:militaryRank
                 annotations:
                     prompt: "last military rank of the person based on their service details"
-                    prompt.examples: Cadet; Sergeant; 2e Lieutenant
+                    prompt.examples: Kadet; 2nd Lieut ; Sergeant ; 
 
     Place:
         is_a: NamedEntity
