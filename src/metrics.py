@@ -8,7 +8,7 @@ from apted import APTED, Config
 from apted.helpers import Tree
 from lxml import etree, html
 from collections import deque
-from utils import load_cells
+from src.utils import load_cells
 
 
 class TableTree(Tree):
