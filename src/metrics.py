@@ -399,5 +399,5 @@ def compute_mAP(gt_file, pred_file, thresholds=np.arange(0.5, 1.0, 0.05)):
     #         f"Mean IoU-based recall={np.mean(vals['recall']):.3f}"
     #     )
 
-    print(f"\nFinal Mean Average Precision (mAP): {mean_ap:.4f}")
+    # print(f"\nFinal Mean Average Precision (mAP): {mean_ap:.4f}")
     return mean_ap
