@@ -30,7 +30,7 @@ all_scores = {
     "mAP": [],
     "TEDS": [],
     "TEDS-Struct": [],
-    "InfoSim": [],
+    # "InfoSim": [],
     "Precision": [],
     "Recall": []
 }
@@ -139,7 +139,7 @@ def process_single_image(image_name):
     with open(json_out_path, encoding="utf-8") as f:
         pred_info = json.load(f)
 
-    info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
+    # info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
     precision, recall = infomration_extraction_precision_recall(
         gt_info.get("persons", []), pred_info.get("persons", []), threshold=0.4
     )
@@ -150,7 +150,7 @@ def process_single_image(image_name):
     # print(f"Information Extraction Similarity Score: {info_sim:.4f}")
     # print(f"Information Extraction: Precision: {precision:.4f}, Recall: {recall:.4f}")
 
-    return mAP, teds_score, teds_struct_score, info_sim, precision, recall
+    return mAP, teds_score, teds_struct_score, precision, recall
 
 
 # %% --- Main Execution Loop ---
