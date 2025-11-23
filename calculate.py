@@ -1,6 +1,7 @@
 # %%
 import os
 import json
+import shutil
 from statistics import mean
 from bs4 import BeautifulSoup
 from shapely.geometry import Polygon
@@ -15,6 +16,7 @@ from src.metrics import (
     best_match_similarity
 )
 from src.person_info_extraction import extract_info_LLM
+from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
 from statistics import mean
 
 # %%
@@ -24,6 +26,9 @@ GT_HTML_DIR = "data/labels/tables"
 GT_INFO_DIR = "data/labels/info"
 OUTPUT_HTML_DIR = "data/tables/html"
 OUTPUT_JSON_DIR = "data/json"
+TEMP_DIR = "data/temp"
+SCHEMA_PATH = "data/schema/personbasicinfo.yaml"
+LLM_MODEL = "ollama/llama3"
 
 # storage for metrics
 all_scores = {
@@ -104,7 +109,7 @@ def extract_persons_from_table(logical_rows):
     return [json.loads(p) for p in unique_persons]
 
 
-def process_single_image(image_name):
+def process_single_image(image_name, IE_method="ontogpt"):
     """Run the full evaluation pipeline for one image and return metrics."""
     print("\n===================================")
     print(f"Processing {image_name}...")
@@ -127,11 +132,41 @@ def process_single_image(image_name):
 
     # --- Information Extraction ---
     logical_rows = parse_html_table(pred_html)
-    persons = extract_persons_from_table(logical_rows)
-    json_obj = {"persons": persons}
-    json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
-    with open(json_out_path, "w", encoding="utf-8") as jf:
-        json.dump(json_obj, jf, ensure_ascii=False, indent=2)
+
+    if IE_method == "llm":
+        persons = extract_persons_from_table(logical_rows)
+        json_obj = {"persons": persons}
+        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
+        with open(json_out_path, "w", encoding="utf-8") as jf:
+            json.dump(json_obj, jf, ensure_ascii=False, indent=2)
+    
+    if IE_method == "ontogpt":
+        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
+        os.makedirs(TEMP_DIR, exist_ok=True)
+
+        try:
+            for i, row in enumerate(logical_rows):
+                print(f"Processing row {i+1}/{len(logical_rows)}")
+                temp_file = f"person_{i}.json"
+                information_extractor(row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
+
+            persons = []
+
+            for filename in os.listdir(TEMP_DIR):
+                if filename.endswith(".json") and filename.startswith("person_"):
+                    with open(os.path.join(TEMP_DIR, filename), 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        # each temp file is expected to be {'persons': [...]}
+                        person = data.get("persons", [])
+                        if isinstance(persons, list):
+                            persons.extend(person)
+                        elif person:
+                            persons.append(persons)
+
+            with open(json_out_path, 'w', encoding='utf-8') as f:
+                json.dump({"persons": persons}, f, indent=2, ensure_ascii=False)   
+        finally: 
+            shutil.rmtree(TEMP_DIR, ignore_errors=True)
 
     # --- Compare with Ground Truth JSON ---
     with open(os.path.join(GT_INFO_DIR, f"{image_name.replace('.jpg', '.json')}"), encoding="utf-8") as f:
