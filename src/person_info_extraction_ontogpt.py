@@ -181,7 +181,7 @@ def convert_yaml_to_json(yaml_path, json_output):
 
     extracted_raw = data.get("extracted_object")
     if not isinstance(extracted_raw, dict):
-        print("Warning: YAML has no 'extracted_object'. Returning empty person.")
+        print("Warning: YAML has no 'extracted_object'. Ignoring .")
         extracted = {}
         return
     else:
@@ -189,7 +189,7 @@ def convert_yaml_to_json(yaml_path, json_output):
 
     named_entities_raw = data.get("named_entities")
     if not isinstance(named_entities_raw, list):
-        print("Warning: YAML has no 'named_entities'. Using empty list.")
+        print("Warning: YAML has no 'named_entities'. Ignoring it.")
         named_entities = []
         return
     else:
