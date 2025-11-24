@@ -156,7 +156,7 @@ def process_value(value, named_entities):
     """Recursive converter for values."""
 
     if isinstance(value, dict):
-        return {k: process_value(v, named_entities) for k, v in value.items()}
+        return {k: process_value(v, named_entities) for k, v in value.items() if k != "id"}
 
     ent = match_entity(value, named_entities)
 
@@ -198,6 +198,7 @@ def convert_yaml_to_json(yaml_path, json_output):
     person = {
         key: process_value(value, named_entities)
         for key, value in extracted.items()
+        if key != "id"
     }
 
     write_json(json_output, {"persons": [person]})
