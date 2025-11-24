@@ -177,7 +177,7 @@ def process_single_image(image_name, IE_method="ontogpt"):
 
     # info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
     precision, recall, accuracy = infomration_extraction_precision_recall(
-        gt_info.get("persons", []), pred_info.get("persons", []), threshold=0.4
+        pred_info.get("persons", []), gt_info.get("persons", []), threshold=0.4
     )
 
     print(f"Final Mean Average Precision (mAP): {mAP:.4f}")

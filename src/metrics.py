@@ -308,16 +308,19 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
         for field_path in pred_fields:
             v1 = get_nested_value(person_pred, field_path)
             v2 = get_nested_value(person_gt, field_path)
-            if v1 or v2:
+            if v1:
                 d = normalized_edit_distance(v1 or "", v2 or "")
                 if d < threshold:
                     correct_precision += 1
+                else: 
+                    print(f"Incorrect field {field_path} with values '{v1}' and '{v2}'")
+        print(f"Total predicted fields: {len(pred_fields)}, Correct predictions: {correct_precision}")
 
         # Recall (GT → Pred)
         for field_path in gt_fields:
             v1 = get_nested_value(person_pred, field_path)
             v2 = get_nested_value(person_gt, field_path)
-            if v1 or v2:
+            if v2:
                 d = normalized_edit_distance(v1 or "", v2 or "")
                 if d < threshold:
                     correct_recall += 1
