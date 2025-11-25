@@ -43,8 +43,8 @@ classes:
                     The date of birth for the person.
                 range: Date
                 annotations:
-                    prompt: "Date when the person was born"
-                    prompt.examples: 15 October 1797; 11e Maart 1789; 14 Junij 1785 ; 5 Januarij 1788 ;
+                    prompt: "Date when the person was born. Use format DD-MM-YYYY"
+                    prompt.examples: 15-10-1797; 01-01-1800; 23-04-1856 ;
 
             birth_place:
                 description: >-
@@ -69,8 +69,8 @@ classes:
                 range: Place
                 slot_uri: schema:nationality
                 annotations:
-                    prompt: "infer the country name of the person based on their birthplace"
-                    annotaotr: Netherlands; England; france
+                    prompt: "infer the country name of the person based on their birthplace. Just the country name, no context within brackets"
+                    annotaotr: Netherlands; England; France
 
             military_rank:
                 description: >-
@@ -78,7 +78,7 @@ classes:
                 range: Rank
                 slot_uri: dbo:militaryRank
                 annotations:
-                    prompt: "last military rank of the person based on their service details"
+                    prompt: "last military rank of the person based on their service details; Just the rank name, no context within brackets. Leave blank if no rank mentioned."
                     prompt.examples: Kadet; 2nd Lieut ; Sergeant ; 
 
     Place:
@@ -96,7 +96,7 @@ classes:
             label:
                 description: >-
                     The date of the event.
-                range: string
+                range: Date
 
     Rank:
         is_a: NamedEntity
