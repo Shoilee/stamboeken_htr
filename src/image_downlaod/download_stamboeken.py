@@ -2,11 +2,12 @@ import re
 import os
 import time
 import json
+import logging
 import requests
 import openpyxl
 from lxml import etree
 from tqdm import tqdm
-from download_control_book import download_image
+from src.image_downlaod.download_control_book import download_image
 import random
 
 
@@ -135,10 +136,67 @@ def download_images_from_excel(input_file, output_directory):
             else:
                 print(f"Download URL not found for {stamboeken_number}")
         else:
-            print(f"Invalid NA_nummer pattern for row: {row}")
+            logging.debug(f"Invalid NA_nummer pattern for row: {row}")
 
     elapsed_time = time.perf_counter() - start_time
     print(f"Completed downloading images in {elapsed_time:.2f} seconds.")
+
+
+def download_images_based_on_inv(input_file, output_directory, inventory_numbers):
+    """
+    Download images listed in an Excel file based on a given list of inventory numbers.
+    
+    Args:
+        input_file (str): Path to the Excel file containing image data.
+        output_directory (str): Directory to save the downloaded images.
+        inventory_numbers (list): List of invNum values to download.
+    """
+    if not os.path.exists(output_directory):
+        os.makedirs(output_directory)
+
+    # Convert to string for safe matching
+    inventory_numbers = set(str(x) for x in inventory_numbers)
+    print(f"Target inventory numbers: {inventory_numbers}")
+
+    for invNum in inventory_numbers:
+        print(f"Preparing to download images for inventory number: {invNum}")
+
+        for _, row in enumerate(tqdm(parse_excel_rows(input_file), desc="Processing rows")):
+            
+            stamboeken_number = row.get("NA_nummer")
+            if not stamboeken_number:
+                continue
+
+            # Extract archive_number and inventory_number
+            match = re.search(r'NL-HaNA_(.*?)_(.*?)_.*$', stamboeken_number)
+            if not match:
+                logging.debug(f"Invalid NA_nummer pattern for row: {row}")
+                continue
+
+            archive_number, inventory_number = match.groups()
+
+            # Only download if invNum is in our target list
+            if int(inventory_number) != int(float(invNum)):
+                continue
+            else:
+                print(f"Downloading for inventory number: {inventory_number}")
+
+                archive_link = (
+                    f"https://www.nationaalarchief.nl/onderzoeken/archief/"
+                    f"{archive_number}/invnr/{inventory_number}/file/{stamboeken_number}?tab=download"
+                )
+
+                image_filename = f"{stamboeken_number}.jpg"
+                download_url = process_archive_link(archive_link, image_filename)
+
+                if download_url:
+                    download_image(download_url, image_filename, output_directory)
+                else:
+                    print(f"Download URL not found for {stamboeken_number}")
+
+                # Break after finding the matching invNum
+                print(f"Finished downloading images for inventory number: {inventory_number}")
+                break
 
 
 if __name__ == "__main__":
