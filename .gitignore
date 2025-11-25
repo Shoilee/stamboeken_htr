@@ -20,3 +20,4 @@ src/LLM_key.py
 data/*
 !data/schema/
 src/webapp/uploads/*
+exp-1
