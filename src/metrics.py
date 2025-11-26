@@ -287,7 +287,7 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
 
     total_precision = 0.0
     total_recall = 0.0
-    total_accuracy = 0.0
+    total_f1 = 0.0
 
     for i, j in zip(row_ind, col_ind):
         if i >= n or j >= m:
@@ -302,7 +302,6 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
         # --- Field-level counts ---
         correct_precision = 0
         correct_recall = 0
-        correct_accuracy = 0  # new
 
         # Precision (Pred → GT)
         for field_path in pred_fields:
@@ -312,9 +311,9 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
                 d = normalized_edit_distance(v1 or "", v2 or "")
                 if d < threshold:
                     correct_precision += 1
-                else: 
-                    print(f"Incorrect field {field_path} with values '{v1}' and '{v2}'")
-        print(f"Total predicted fields: {len(pred_fields)}, Correct predictions: {correct_precision}")
+        #         else: 
+        #             print(f"Incorrect field {field_path} with values '{v1}' and '{v2}'")
+        # print(f"Total predicted fields: {len(pred_fields)}, Correct predictions: {correct_precision}")
 
         # Recall (GT → Pred)
         for field_path in gt_fields:
@@ -324,26 +323,26 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
                 d = normalized_edit_distance(v1 or "", v2 or "")
                 if d < threshold:
                     correct_recall += 1
-                    correct_accuracy += 1  # accuracy counts correct GT matches
 
+    
         # Compute person-level metrics
         person_precision = correct_precision / len(pred_fields) if pred_fields else 0
         person_recall = correct_recall / len(gt_fields) if gt_fields else 0
-        person_accuracy = correct_accuracy / len(gt_fields) if gt_fields else 0
+        person_f1 = (2 * person_precision * person_recall) / (person_precision + person_recall) if (person_precision + person_recall) > 0 else 0
 
         total_precision += person_precision
         total_recall += person_recall
-        total_accuracy += person_accuracy
+        total_f1 += person_f1
 
     # --- Macro-average scores ---
     overall_precision = total_precision / len(list_pred)
     overall_recall = total_recall / len(list_gt)
-    overall_accuracy = total_accuracy / len(list_gt)
+    overall_f1 = total_f1 / len(list_gt)
 
     return (
         round(overall_precision, 4),
         round(overall_recall, 4),
-        round(overall_accuracy, 4),
+        round(overall_f1, 4),
     )
 
 def iou(poly1, poly2):
