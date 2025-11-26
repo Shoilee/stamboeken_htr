@@ -268,26 +268,27 @@ def person_similarity(p1, p2):
 
 
 def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
-    """Compute overall precision, recall, and accuracy for best-matched persons."""
+    """Compute global precision, recall, and F1-score based on all fields."""
     if not list_pred or not list_gt:
         return 0.0, 0.0, 0.0
 
     n, m = len(list_pred), len(list_gt)
     size = max(n, m)
 
-    # --- Step 1: Similarity matrix for Hungarian matching ---
+    # --- Step 1: Build similarity matrix for matching ---
     sim_matrix = np.zeros((size, size))
     for i in range(n):
         for j in range(m):
             sim_matrix[i, j] = person_similarity(list_pred[i], list_gt[j])
 
-    # --- Step 2: Hungarian algorithm ---
+    # --- Step 2: Hungarian assignment ---
     cost_matrix = 1.0 - sim_matrix
     row_ind, col_ind = linear_sum_assignment(cost_matrix)
 
-    total_precision = 0.0
-    total_recall = 0.0
-    total_f1 = 0.0
+    # GLOBAL counters (not per-person!)
+    total_pred_fields = 0    # P = TP + FP
+    total_gt_fields = 0      # G = TP + FN
+    total_correct = 0        # TP
 
     for i, j in zip(row_ind, col_ind):
         if i >= n or j >= m:
@@ -297,53 +298,36 @@ def infomration_extraction_precision_recall(list_pred, list_gt, threshold=0.4):
         person_gt = list_gt[j]
 
         pred_fields = extract_value_paths(person_pred)
-        gt_fields = extract_value_paths(person_gt)
+        gt_fields   = extract_value_paths(person_gt)
 
-        # --- Field-level counts ---
-        correct_precision = 0
-        correct_recall = 0
+        total_pred_fields += len(pred_fields)
+        total_gt_fields   += len(gt_fields)
 
-        # Precision (Pred → GT)
+        # Count matches
         for field_path in pred_fields:
             v1 = get_nested_value(person_pred, field_path)
             v2 = get_nested_value(person_gt, field_path)
-            if v1:
-                d = normalized_edit_distance(v1 or "", v2 or "")
-                if d < threshold:
-                    correct_precision += 1
-        #         else: 
-        #             print(f"Incorrect field {field_path} with values '{v1}' and '{v2}'")
-        # print(f"Total predicted fields: {len(pred_fields)}, Correct predictions: {correct_precision}")
+            if v1 is None and v2 is None:
+                continue
+            d = normalized_edit_distance(v1 or "", v2 or "")
+            if d < threshold:
+                total_correct += 1
 
-        # Recall (GT → Pred)
-        for field_path in gt_fields:
-            v1 = get_nested_value(person_pred, field_path)
-            v2 = get_nested_value(person_gt, field_path)
-            if v2:
-                d = normalized_edit_distance(v1 or "", v2 or "")
-                if d < threshold:
-                    correct_recall += 1
 
-    
-        # Compute person-level metrics
-        person_precision = correct_precision / len(pred_fields) if pred_fields else 0
-        person_recall = correct_recall / len(gt_fields) if gt_fields else 0
-        person_f1 = (2 * person_precision * person_recall) / (person_precision + person_recall) if (person_precision + person_recall) > 0 else 0
+    # print(f"Predicted fields: {total_pred_fields}")
+    # print(f"Ground Truth fields: {total_gt_fields}")
 
-        total_precision += person_precision
-        total_recall += person_recall
-        total_f1 += person_f1
-
-    # --- Macro-average scores ---
-    overall_precision = total_precision / len(list_pred)
-    overall_recall = total_recall / len(list_gt)
-    overall_f1 = total_f1 / len(list_gt)
+    # --- GLOBAL Precision & Recall ---
+    precision = total_correct / total_pred_fields if total_pred_fields else 0
+    recall    = total_correct / total_gt_fields if total_gt_fields else 0
+    f1        = (2 * precision * recall) / (precision + recall) if (precision + recall) > 0 else 0
 
     return (
-        round(overall_precision, 4),
-        round(overall_recall, 4),
-        round(overall_f1, 4),
+        round(precision, 4),
+        round(recall, 4),
+        round(f1, 4),
     )
+
 
 def iou(poly1, poly2):
     """Compute IoU between two polygons."""
