@@ -33,9 +33,8 @@ LLM_MODEL = "ollama/llama3"
 # storage for metrics
 all_scores = {
     "mAP": [],
-    "TEDS": [],
     "TEDS-Struct": [],
-    # "InfoSim": [],
+    "TEDS": [],
     "Precision": [],
     "Recall": [],
     "F1-score": []
@@ -149,7 +148,11 @@ def process_single_image(image_name, IE_method="ontogpt"):
             for i, row in enumerate(logical_rows):
                 print(f"Processing row {i+1}/{len(logical_rows)}")
                 temp_file = f"person_{i}.json"
-                information_extractor(row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
+                try:
+                    information_extractor(row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
+                except Exception as e:
+                    print(f" ❌ Error processing row {i}: {e}")
+                    continue
 
             persons = []
 
@@ -180,9 +183,10 @@ def process_single_image(image_name, IE_method="ontogpt"):
         pred_info.get("persons", []), gt_info.get("persons", []), threshold=0.4
     )
 
-    print(f"Final Mean Average Precision (mAP): {mAP:.4f}")
-    print(f"TEDS: {teds_score:.4f}")
+    print(f"Mean Average Precision (mAP): {mAP:.4f}")
     print(f"TEDS-Struct: {teds_struct_score:.4f}")
+    print(f"TEDS: {teds_score:.4f}")
+    
     print(f"Information Extraction - \nPrecision: {precision:.4f}, \nRecall: {recall:.4f}, \nF1-score: {f1_score:.4f}")
 
     return mAP, teds_score, teds_struct_score, precision, recall, f1_score
@@ -200,9 +204,8 @@ def main():
         try: 
             mAP, teds, teds_struct, p, r , f= process_single_image(image_name) 
             all_scores["mAP"].append(mAP) 
-            all_scores["TEDS"].append(teds) 
             all_scores["TEDS-Struct"].append(teds_struct) 
-            # all_scores["InfoSim"].append(info_sim) 
+            all_scores["TEDS"].append(teds) 
             all_scores["Precision"].append(p) 
             all_scores["Recall"].append(r) 
             all_scores["F1-score"].append(f) 
