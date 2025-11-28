@@ -1,5 +1,6 @@
 # %%
 import os
+import traceback
 import json
 import shutil
 from statistics import mean
@@ -211,7 +212,10 @@ def main():
             all_scores["F1-score"].append(f) 
             print(f"✅ Finished processing {image_name}")
         except Exception as e: 
-            print(f"❌ Error processing {image_name}: {e}") 
+            # Print detailed error info
+            print("❌ [ERROR] An exception occurred!")
+            traceback.print_exc()
+
 
     # --- Print summary averages ---
     print("\n===================================") 
