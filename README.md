@@ -12,10 +12,8 @@ This project converts handwritten table images into structured Knowledge Graphs 
 
 
 ---
-
-## Pipeline Steps
-
-### 1. Table Reconstruction (TSR + HTR)
+## 1. Table Reconstruction (TSR + HTR)
+### Approach-2 (Machine Learning Pipeline)
 
 Convert image (e.g. jpg)→ structured table (e.g., HTML or 2D array)
 ```mermaid
@@ -64,13 +62,15 @@ graph TD;
    mkdir model
    ```
 
-- Change the parameters such as model architecture, model path and input/output directory in `src/scripts/infer/demo_wireless.sh`
+- Change the parameters such as model architecture, model path and input/output directory in `src/scripts/infer/demo_wired.sh`
 
 - Run the scripts
    ```
    cd src
-   bash scripts/infer/demo_wireless.sh
+   bash scripts/infer/demo_wired.sh
    ```
+
+---
 
 #### Handwritten Text Recognition (using Loghi)
 
@@ -105,27 +105,35 @@ graph TD;
    ```bash
    python src/reconstruct_table.py
    ```
+---
+
+### Approach-3 (Multi-run Conversation LLM)
+1. 
+```bash
+cd Image2Table_LLM     
+python run_modular_llm.py
+```
+
+2. 
+```bash
+run src/llm_pagexml.ipynb
+```
 
 ---
 
-### 2. Source-Aware Mapping
+## 2. Information Extraction (IE) 
 
-📍 Track table structure (bounding boxes or indexes) for each cell  
-🔗 Supports triple-level provenance using Semantic Web / Linked Data models
-
----
-
-### 3. Information Extraction (IE) + KG Construction
-
-📝 Extract values using:
+📝 Extract attribute value, given desired schema, using:
 - Regex patterns
 - Large Language Models (LLMs)
+- OntoGPT
+
+## 3. KG Construction (Source-Aware Mapping)
 
 🔄 Convert extracted information into RDF **triples**
 
-# Set-up
-#### 1. Install Mini-conda
-Documentation: https://docs.anaconda.com/miniconda/
+📍 Track table structure (bounding boxes or indexes) for each cell  
+🔗 Supports triple-level provenance using Semantic Web / Linked Data models
 
 
 ## Directory Structure
