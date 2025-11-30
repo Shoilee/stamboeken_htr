@@ -26,7 +26,7 @@ ex:CellShape a sh:NodeShape ;
     sh:targetClass ex:Cell ;
     sh:property [
         sh:path csvw:rowNumber ;
-       :datatype xsd:integer ;
+        sh:datatype xsd:integer ;
         sh:minCount 1 ;
     ] ;
     sh:property [
