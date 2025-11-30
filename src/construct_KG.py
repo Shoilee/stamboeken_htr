@@ -354,6 +354,12 @@ def count_triples(path):
     spo = set((s, p, o) for s, p, o, _ in unique)
     return len(unique), len(spo)
 
+def count_triples_with_text_span(path):
+    cg = Dataset()
+    cg.parse(path, format="trig")
+    unique = set(cg.quads((None, None, None, None)))
+    spo = set((s, p, o) for s, p, o, g in unique if "text_span" in str(g))
+    return len(unique), len(spo)
 
 # ============================================================
 # MAIN EXECUTION PIPELINE
@@ -387,6 +393,13 @@ def main(directory):
                 f"\n\t{spo_total} unique triples (subject-predicate-object, graph context ignored)."
             )
 
+            graphs_text_span, spo_text_span = count_triples_with_text_span(assertion_output)
+            print(
+                f"Text span triple counts for {image_name}:"
+                f"\n\t{graphs_text_span} quads across text span graphs (includes graph/context), and"
+                f"\n\t{spo_text_span} unique triples (subject-predicate-object, graph context ignored)."
+            )
+
             # If SHACL validation is needed
             try:
                 conforms, results_graph, results_text = validate(
@@ -405,6 +418,6 @@ def main(directory):
             except Exception as e:
                 print("Error during SHACL validation for", image_name, ":", e)
 
-
+        print("===================================\n")
 if __name__== "__main__":
     main("data/images")
