@@ -135,6 +135,7 @@ def process_single_image(image_name, IE_method="ontogpt"):
     logical_rows = parse_html_table(pred_html)
 
     if IE_method == "llm":
+        # TODO: this method do not store row index in the JSON output
         persons = extract_persons_from_table(logical_rows)
         json_obj = {"persons": persons}
         json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
@@ -150,9 +151,10 @@ def process_single_image(image_name, IE_method="ontogpt"):
                 print(f"Processing row {i+1}/{len(logical_rows)}")
                 temp_file = f"person_{i}.json"
                 try:
-                    information_extractor(row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
+                    information_extractor(i, row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
                 except Exception as e:
                     print(f" ❌ Error processing row {i}: {e}")
+                    traceback.print_exc()
                     continue
 
             persons = []

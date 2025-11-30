@@ -152,25 +152,26 @@ def match_entity(raw_value, named_entities):
     )
 
 
-def process_value(value, named_entities):
+def process_value(row_index, value, named_entities):
     """Recursive converter for values."""
 
     if isinstance(value, dict):
-        return {k: process_value(v, named_entities) for k, v in value.items() if k != "id"}
+        return {k: process_value(row_index, v, named_entities) for k, v in value.items() if k != "id"}
 
     ent = match_entity(value, named_entities)
 
     if ent:
-        return {
+        return { 
             "value": ent.get("label"),
+            "row": row_index,
             "cell": ent.get("cell"),
             "original_spans": ent.get("original_spans"),
         }
 
-    return {"value": value, "cell": None, "original_spans": None}
+    return {"value": value, "row": row_index, "cell": None, "original_spans": None}
 
 
-def convert_yaml_to_json(yaml_path, json_output):
+def convert_yaml_to_json(row_index, yaml_path, json_output):
     """
     Converts OntoGPT YAML output into normalized JSON.
     This version safely handles cases where extracted_object
@@ -196,7 +197,7 @@ def convert_yaml_to_json(yaml_path, json_output):
         named_entities = named_entities_raw
 
     person = {
-        key: process_value(value, named_entities)
+        key: process_value(row_index, value, named_entities)
         for key, value in extracted.items()
         if key != "id"
     }
@@ -209,7 +210,7 @@ def convert_yaml_to_json(yaml_path, json_output):
 # Step 5 — High-level Orchestration
 # ============================================================
 
-def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/", llm_model="ollama/llama3"):
+def extract_person_info(row_idx, logical_rows, schema_path, json_output, temp_dir="temp/", llm_model="ollama/llama3"):
     """End-to-end person extraction pipeline."""
 
     ensure_dir(temp_dir)
@@ -232,5 +233,5 @@ def extract_person_info(logical_rows, schema_path, json_output, temp_dir="temp/"
     )
 
     # Step 5: Convert to JSON
-    convert_yaml_to_json(yaml_path, json_output)
+    convert_yaml_to_json(row_idx, yaml_path, json_output)
 
