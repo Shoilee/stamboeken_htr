@@ -7,9 +7,6 @@ def load_json(path):
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-end_time = "2025-09-01T12:00:00Z"  # Example end time, replace with actual time if needed
-start_time = "2025-09-01T10:00:00Z"  # Example start time, replace with actual time if needed
-
 # ============================================================
 # MODULE 1 — ASSERTION GRAPH CONSTRUCTION
 # ============================================================
@@ -266,9 +263,9 @@ def process_row_provenance(elem, g, root, stamboek_nummer):
     g.add((json_URI, RDFS.label, Literal(f"JSON file: {stamboek_nummer}.json")))
     g.add((KGConstructionactivity, PROV.used, json_URI))
 
-    # TODO: consider if I need it
-    g.add((stamboekenKGConstructionactivity,PROV.endedAtTime, Literal(end_time)))
-    g.add((stamboekenKGConstructionactivity,PROV.startedAtTime, Literal(start_time)))
+    # TODO: add more information about prov:Activity
+    # g.add((stamboekenKGConstructionactivity,PROV.endedAtTime, Literal(end_time)))
+    # g.add((stamboekenKGConstructionactivity,PROV.startedAtTime, Literal(start_time)))
 
     # Create a Table instance URI
     table_uri = URIRef(f"http://example.org/Table/{stamboek_nummer}")
@@ -366,6 +363,7 @@ def main(directory):
             pagexml_path = f"data/tables/pagexml/{image_name}.xml"
             assertion_output = f"data/triples/{image_name.replace('.jpg', '')}_assertion.trig"
             provenance_output = f"data/triples/{image_name.replace('.jpg', '')}_provenance.ttl"
+            provenace_shacl_shape = "data/schema/data_provenance.ttl"
 
             json_obj = load_json(json_path)
 
@@ -387,7 +385,7 @@ def main(directory):
             from pyshacl import validate
             conforms, results_graph, results_text = validate(
                 provenance_output,
-                "data/triples/data_provenance.ttl"
+                provenace_shacl_shape
             )
             print(f"Provenance Graph SHACL Conforms for {image_name}:", conforms)
 
