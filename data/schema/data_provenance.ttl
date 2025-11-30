@@ -1,0 +1,122 @@
+
+@prefix sh: <http://www.w3.org/ns/shacl#> .
+@prefix prov: <http://www.w3.org/ns/prov#> .
+@prefix csvw: <http://www.w3.org/ns/csvw#> .
+@prefix ex: <http://example.org/ontology/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix skos: <http://www.w3.org/2004/02/skos/core#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+### Row Shape
+ex:RowShape a sh:NodeShape ;
+    sh:targetClass ex:Row ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path skos:partOf ;
+        sh:class ex:Table ;
+        sh:minCount 1 ;
+    ] .
+
+### Cell Shape
+ex:CellShape a sh:NodeShape ;
+    sh:targetClass ex:Cell ;
+    sh:property [
+        sh:path csvw:rowNumber ;
+       :datatype xsd:integer ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path csvw:columnNumber ;
+        sh:datatype xsd:integer ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path ex:ImageRegion ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path skos:partOf ;
+        sh:class ex:Row ;
+        sh:minCount 1 ;
+    ] .
+
+### Table Shape
+ex:TableShape a sh:NodeShape ;
+    sh:targetClass ex:Table .
+
+### TextSpan Shape
+ex:TextSpanShape a sh:NodeShape ;
+    sh:targetClass ex:TextSpan ;
+    sh:property [
+        sh:path ex:range ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path skos:partOf ;
+        sh:class ex:Row ;
+        sh:minCount 1 ;
+    ] .
+
+### Agent Shape
+ex:AgentShape a sh:NodeShape ;
+    sh:targetClass prov:Agent ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path prov:actedOnBehalfOf ;
+        sh:class prov:Agent ;
+    ] .
+
+### Activity Shape
+ex:ActivityShape a sh:NodeShape ;
+    sh:targetClass prov:Activity ;
+    sh:property [
+        sh:path prov:startedAtTime ;
+        sh:datatype xsd:dateTime ;
+    ] ;
+    sh:property [
+        sh:path prov:endedAtTime ;
+        sh:datatype xsd:dateTime ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAssociatedWith ;
+        sh:class prov:Agent ;
+    ] ;
+    sh:property [
+        sh:path prov:used ;
+        sh:class prov:Entity ;
+    ] ;
+    sh:property [
+        sh:path prov:wasInformedBy ;
+        sh:class prov:Activity ;
+    ] .
+
+### Entity Shape
+ex:EntityShape a sh:NodeShape ;
+    sh:targetClass prov:Entity ;
+    sh:property [
+        sh:path rdfs:label ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+    ] ;
+    sh:property [
+        sh:path prov:wasGeneratedBy ;
+        sh:class prov:Activity ;
+    ] ;
+    sh:property [
+        sh:path prov:wasDerivedFrom ;
+        sh:class prov:Entity ;
+    ] ;
+    sh:property [
+        sh:path prov:wasAttributedTo ;
+        sh:class prov:Agent ;
+    ] .
