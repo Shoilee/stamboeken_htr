@@ -197,17 +197,20 @@ def add_provenance_graph(json_path, pagexml_path, stamboek_nummer, output_path):
     tree = etree.parse(pagexml_path)
     root = tree.getroot()
 
-    g = Graph()
+    g = Dataset()
     g.bind("ex", EX)
     g.bind("prov", PROV)
     g.bind("csvw", CSVW)
     g.bind("skos", SKOS)
     g.bind("rdfs", RDFS)
 
-    for elem in elements:
-        process_row_provenance(elem, g, root, stamboek_nummer)
+    provenance_graph_uri = URIRef("http://example.org/provenance")
+    provenance_graph = Graph(store=g.store, identifier=provenance_graph_uri)
 
-    g.serialize(output_path, format="ttl")
+    for elem in elements:
+        process_row_provenance(elem, provenance_graph, root, stamboek_nummer)
+
+    g.serialize(output_path, format="trig")
     return g
 
 
@@ -271,12 +274,15 @@ def process_row_provenance(elem, g, root, stamboek_nummer):
     table_uri = URIRef(f"http://example.org/Table/{stamboek_nummer}")
     g.add((table_uri, RDF.type, PROV.Entity))
     g.add((table_uri, RDF.type, EX.Table))
+    g.add((table_uri, RDFS.label, Literal(f"Table from {stamboek_nummer}")))
     g.add((table_uri, PROV.wasGeneratedBy, tableConstructionactivity))
     g.add((row_uri, SKOS.partOf, table_uri))
         
     # stamboeken
     stamboek_uri = URIRef(f"http://example.org/Image/{stamboek_nummer}")
     g.add((stamboek_uri, RDF.type, PROV.Entity))
+    g.add((stamboek_uri, RDF.type, EX.Image))
+    g.add((stamboek_uri, RDFS.label, Literal(f"Stamboek {stamboek_nummer}")))
     g.add((tableConstructionactivity, PROV.used, stamboek_uri))
     g.add((table_uri, PROV.wasDerivedFrom, stamboek_uri))
     national_archives = URIRef("http://example.org/agent/3")
@@ -352,7 +358,7 @@ def count_triples(path):
 # ============================================================
 # MAIN EXECUTION PIPELINE
 # ============================================================
-
+from pyshacl  import validate
 import os
 def main(directory):
     # Iterate through all files in the directory
@@ -362,7 +368,7 @@ def main(directory):
             json_path = f"data/json/{image_name}.json"
             pagexml_path = f"data/tables/pagexml/{image_name}.xml"
             assertion_output = f"data/triples/{image_name.replace('.jpg', '')}_assertion.trig"
-            provenance_output = f"data/triples/{image_name.replace('.jpg', '')}_provenance.ttl"
+            provenance_output = f"data/triples/{image_name.replace('.jpg', '')}_provenance.trig"
             provenace_shacl_shape = "data/schema/data_provenance.ttl"
 
             json_obj = load_json(json_path)
@@ -376,18 +382,28 @@ def main(directory):
             # 3. Triple counts
             graphs_total, spo_total = count_triples(assertion_output)
             print(
-                f"Triple counts for {image_name}: {graphs_total} quads across all graphs "
-                f"(includes graph/context) and {spo_total} unique triples "
-                f"(subject-predicate-object, graph context ignored)."
+                f"Triple counts for {image_name}:"
+                f"\n\t{graphs_total} quads across all graphs (includes graph/context), and"
+                f"\n\t{spo_total} unique triples (subject-predicate-object, graph context ignored)."
             )
 
             # If SHACL validation is needed
-            from pyshacl import validate
-            conforms, results_graph, results_text = validate(
-                provenance_output,
-                provenace_shacl_shape
-            )
-            print(f"Provenance Graph SHACL Conforms for {image_name}:", conforms)
+            try:
+                conforms, results_graph, results_text = validate(
+                        provenance_output,
+                        shacl_graph=provenace_shacl_shape,
+                        data_graph_format="trig",
+                        shacl_graph_format="turtle",
+                        inference="rdfs",
+                        abort_on_error=False,
+                        meta_shacl=False,
+                        advanced=False,
+                        js=False,
+                    )
+                print(f"Provenance SHACL Conforms for {image_name}:", conforms)
+                print(results_text)
+            except Exception as e:
+                print("Error during SHACL validation for", image_name, ":", e)
 
 
 if __name__== "__main__":
