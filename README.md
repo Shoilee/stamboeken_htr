@@ -10,6 +10,59 @@ This project converts handwritten table images into structured Knowledge Graphs 
 2. Maps text content to source cells using bounding boxes or cell indexes.
 3. Extracts RDF triples with **cell-level provenance**
 
+---
+Pipeline Diagram
+---
+
+```pgsql
+ ┌───────────────────────────────────────────────────────────────┐
+ │                           IMAGE                               │
+ │            (Handwritten Historical Table Page)                │
+ └───────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+ ┌───────────────────────────────────────────────────────────────┐
+ │                 1. TABLE RECONSTRUCTION                       │
+ │  ┌───────────────────────────────┐   ┌──────────────────────┐ │
+ │  │ 1(A) Cell Detection (TSR)     │   │ 1(B)Handwriting (HTR)│ │
+ │  │                               │   │ Recognizer           │ │
+ │  └───────────────────────────────┘   └──────────────────────┘ │
+ │            │                                      │           |
+ │            └───────── Merge into PageXML ─────────┘           |
+ └───────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+ ┌───────────────────────────────────────────────────────────────┐
+ │                  2. PAGE XML → HTML TABLE                     │
+ │  • Reconstruct structured <table><tr><td> from XML            │
+ │    (preserving row/col spans + cell id)                       │
+ └───────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+ ┌───────────────────────────────────────────────────────────────┐
+ │               3. ROW-LEVEL INFORMATION EXTRACTION             │
+ │  For each table row:                                          │
+ │   • Extract row text                                          │
+ │   • OntoGPT(text, KG schema) →YAML                            │
+ │   • YAML → Normalized JSON                                    │
+ │   • Add provenance (cell ID, text spans)                      │
+ └───────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+ ┌───────────────────────────────────────────────────────────────┐
+ │               4. KNOWLEDGE GRAPH CONSTRUCTION                 │
+ │   • Build assertion triples                                   │
+ │   • Build provenance triples                                  │
+ │   • Output as RDF (Trig)                                      │
+ └───────────────────────────────────────────────────────────────┘
+                            │
+                            ▼
+ ┌───────────────────────────────────────────────────────────────┐
+ │                     FINAL KNOWLEDGE GRAPH                     │
+ │     (Traceable Entities to HTML Table & Source Image)         │
+ └───────────────────────────────────────────────────────────────┘
+
+```
 
 ---
 ## 1. Table Reconstruction (TSR + HTR)
