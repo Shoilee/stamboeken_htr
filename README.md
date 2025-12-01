@@ -1,14 +1,27 @@
-# Handwritten Table to Knowledge Graph
+# Handwritten Table to Knowledge Graph Pipeline
 
+A modular, traceable, and provenance-aware pipeline for converting handwritten historical tables into Knowledge Graphs.
 This project converts handwritten table images into structured Knowledge Graphs (KGs) with **cell-level provenance**.
 
-❗ *Research Gap*: End-to-end processing of handwritten tables to structured Knowledge Graphs lacks reliability and traceability.
+🚀 Overview
+---
 
-✅ Solution: We present a traceable and explainable pipeline that:
+Historical handwritten tables contain rich structured information but remain severely under-utilised due to challenges such as irregular layouts, degraded page conditions, and highly variable handwriting.
+This repository provides a modular, traceble, provenance-aware pipeline to convert such archival tabular documents into Knowledge Graphs (KGs).
 
-1. Reconstructs tables from scanned images (TSR + HTR)
-2. Maps text content to source cells using bounding boxes or cell indexes.
-3. Extracts RDF triples with **cell-level provenance**
+The system integrates:
+
+- Table Structure Recognition (TSR)
+
+- Handwritten Text Recognition (HTR)
+
+- LLM-based information extraction
+
+- KG construction
+
+- provenance tracing from image → cell → entity
+
+The pipeline supports multiple reconstruction approaches (Transkribus, ML-based detectors, modular LLM reconstruction) and captures human corrections for updated provenance and transparency.
 
 ---
 Pipeline Diagram
@@ -66,6 +79,9 @@ Pipeline Diagram
 
 ---
 ## 1. Table Reconstruction (TSR + HTR)
+### Approach-1 (Transkribus)
+- Convert image to PageXML using the interface
+- TODO: check if there is an API to do the job
 ### Approach-2 (Machine Learning Pipeline)
 
 Convert image (e.g. jpg)→ structured table (e.g., HTML or 2D array)
@@ -161,13 +177,13 @@ graph TD;
 ---
 
 ### Approach-3 (Multi-run Conversation LLM)
-1. 
+1. Run script to reconstruct table
 ```bash
 cd Image2Table_LLM     
 python run_modular_llm.py
 ```
 
-2. 
+2. Convert LLM output to pageXML
 ```bash
 run src/llm_pagexml.ipynb
 ```
