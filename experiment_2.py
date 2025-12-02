@@ -337,7 +337,7 @@ from statistics import mean
 from bs4 import BeautifulSoup
 from src.utils import pagexml_to_html
 from src.metrics import infomration_extraction_precision_recall
-from src.person_info_extraction import extract_info_LLM
+# from src.person_info_extraction import extract_info_LLM
 from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
 from statistics import mean
 from experiment_1 import parse_html_table, extract_persons_from_table
