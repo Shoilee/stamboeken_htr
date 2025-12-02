@@ -6,87 +6,126 @@ import json
 ###############################################################################
 # 1. CREATE SUBGRAPH FOR A GIVEN FOLIO
 ###############################################################################
+import time
+from rdflib import Dataset, Graph
+from concurrent.futures import ProcessPoolExecutor, as_completed
 
+
+# ----------------------------
+# Worker function (runs in a separate process)
+# ----------------------------
+def run_offset_batch(args):
+    folio_no, ds, offset, batch_size = args
+
+    query = f"""
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+    PREFIX sdo:  <https://schema.org/>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+    CONSTRUCT {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+        ?archive rico:hasDerivedArchiveNumber ?archiveN .
+        ?archive rico:hasInventoryNumber ?inv .
+        ?archive sdo:identifier ?invNum .
+        ?archive sdo:url ?archiveLink .
+        ?person ?p ?o .
+        ?o ?p1 ?o1 .
+    }}
+    WHERE {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+
+        BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
+        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
+        BIND(xsd:integer(?inv) AS ?invNum)
+        FILTER (?invNum = {folio_no})
+
+        ?person ?p ?o .
+        OPTIONAL {{ ?o  ?p1 ?o1 . }}
+    }}
+    LIMIT {batch_size}
+    OFFSET {offset}
+    """
+
+    g_out = Graph()
+    for g in ds.graphs():
+        try:
+            sub = g.query(query)
+            for s, p, o in sub:
+                g_out.add((s, p, o))
+        except Exception:
+            continue
+
+    return offset, len(g_out), list(g_out)
+
+
+# ----------------------------
+# Main parallel controller
+# ----------------------------
 def create_sub_graph_for_folio(folio_no: int) -> str:
-    """
-    Create a constructed graph for one folio and save it to Turtle.
-    Returns the output file path.
-    """
-    ds = Dataset()
-    ds.parse("Bronbeek_Data/Stamboeken.trig", format="trig")
-
     out_graph = Graph()
+
+    graph = Dataset()
+    graph.parse("Bronbeek_Data/Stamboeken.trig", format="trig")
+
     batch_size = 100
+    max_workers = 16  # you can increase if you want
+    consecutive_empty_limit = 10
+
     offset = 0
-    timeout_minutes = 5
-    timeout_seconds = timeout_minutes * 60
-    last_success_time = time.time()
+    empty_count = 0
 
-    def construct_query(offset):
-        return f"""
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-        PREFIX sdo:  <https://schema.org/>
-        PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-        CONSTRUCT {{
-            ?person a sdo:Person .
-            ?person rico:isOrWasSubjectOf ?archive .
-            ?archive rico:identifier ?archiveID .
-            ?archive rico:hasDerivedArchiveNumber ?archiveN .
-            ?archive rico:hasInventoryNumber ?inv .
-            ?archive sdo:identifier ?invNum .
-            ?archive sdo:url ?archiveLink .
-            ?person ?p ?o .
-            ?o ?p1 ?o1 .
-        }}
-        WHERE {{
-            ?person a sdo:Person .
-            ?person rico:isOrWasSubjectOf ?archive .
-            ?archive rico:identifier ?archiveID .
-
-            BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
-            BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
-            BIND(xsd:integer(?inv) AS ?invNum)
-            FILTER (?invNum = {folio_no})
-
-            ?person ?p ?o .
-            OPTIONAL {{ ?o  ?p1 ?o1 . }}
-        }}
-        LIMIT {batch_size}
-        OFFSET {offset}
-        """
     try:
-        while True:
-            print(f"\nRunning batch with OFFSET = {offset} ...")
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
 
-            query = construct_query(offset)
-            total_results = 0
-
-            for g in ds.graphs():
-                try:
-                    results = g.query(query)
-                except Exception:
-                    continue
-
-                rows = list(results)
-                total_results += len(rows)
-                for s, p, o in rows:
-                    out_graph.add((s, p, o))
-
-            # Stop condition
-            if total_results > 0:
-                last_success_time = time.time()
+            # Submit first round of tasks
+            for i in range(max_workers):
+                futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
                 offset += batch_size
-            else:
-                if time.time() - last_success_time > timeout_seconds:
-                    break
-                time.sleep(5)
-                offset += batch_size
+
+            while futures:
+                done, _ = as_completed(futures), None
+
+                for future in done:
+                    off = futures.pop(future)
+
+                    try:
+                        batch_offset, n_triples, triples = future.result()
+                    except Exception as e:
+                        print(f"[ERROR] Offset {off}: {e}")
+                        continue
+
+                    print(f"Offset {batch_offset} → {n_triples} triples")
+
+                    # Merge received triples
+                    for t in triples:
+                        out_graph.add(t)
+
+                    # Update empty batch counter
+                    if n_triples == 0:
+                        empty_count += 1
+                    else:
+                        empty_count = 0
+
+                    # Stop condition
+                    if empty_count >= consecutive_empty_limit:
+                        print("⏳ No results for too many consecutive offsets. Stopping.")
+                        futures.clear()
+                        break
+
+                    # Submit a new task replacing the finished one
+                    futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
+                    offset += batch_size
+
     finally:
-        print(f"✔ Created subgraph with {len(out_graph)} triples")
         out_path = f"folio_{folio_no}_graph.ttl"
         out_graph.serialize(out_path, format="turtle")
+        print(f"✔ Created subgraph with {len(out_graph)} triples")
         return out_path
 
 
@@ -465,8 +504,8 @@ def calculate_IE_score():
 def main():
     folio = 45
 
-    print("\n=== 1. Creating subgraph ===")
-    graph_path = create_sub_graph_for_folio(folio)
+    # print("\n=== 1. Creating subgraph ===")
+    # graph_path = create_sub_graph_for_folio(folio)
 
     print("\n=== 2. Counting statistics ===")
     count_new_graph_stats(folio)
@@ -477,8 +516,8 @@ def main():
     print("\n=== 4. Building JSON files ===")
     build_json_for_images(folio)
 
-    print("\n=== 5. Calculating IE scores ===")
-    calculate_IE_score()
+    # print("\n=== 5. Calculating IE scores ===")
+    # calculate_IE_score()
 
 if __name__ == "__main__":
     main()
