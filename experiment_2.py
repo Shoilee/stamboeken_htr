@@ -56,36 +56,38 @@ def create_sub_graph_for_folio(folio_no: int) -> str:
         LIMIT {batch_size}
         OFFSET {offset}
         """
+    try:
+        while True:
+            print(f"\nRunning batch with OFFSET = {offset} ...")
 
-    while True:
-        query = construct_query(offset)
-        total_results = 0
+            query = construct_query(offset)
+            total_results = 0
 
-        for g in ds.graphs():
-            try:
-                results = g.query(query)
-            except Exception:
-                continue
+            for g in ds.graphs():
+                try:
+                    results = g.query(query)
+                except Exception:
+                    continue
 
-            rows = list(results)
-            total_results += len(rows)
-            for s, p, o in rows:
-                out_graph.add((s, p, o))
+                rows = list(results)
+                total_results += len(rows)
+                for s, p, o in rows:
+                    out_graph.add((s, p, o))
 
-        # Stop condition
-        if total_results > 0:
-            last_success_time = time.time()
-            offset += batch_size
-        else:
-            if time.time() - last_success_time > timeout_seconds:
-                break
-            time.sleep(5)
-            offset += batch_size
-
-    print(f"✔ Created subgraph with {len(out_graph)} triples")
-    out_path = f"folio_{folio_no}_graph.ttl"
-    out_graph.serialize(out_path, format="turtle")
-    return out_path
+            # Stop condition
+            if total_results > 0:
+                last_success_time = time.time()
+                offset += batch_size
+            else:
+                if time.time() - last_success_time > timeout_seconds:
+                    break
+                time.sleep(5)
+                offset += batch_size
+    finally:
+        print(f"✔ Created subgraph with {len(out_graph)} triples")
+        out_path = f"folio_{folio_no}_graph.ttl"
+        out_graph.serialize(out_path, format="turtle")
+        return out_path
 
 
 ###############################################################################
@@ -325,6 +327,138 @@ def construct_graph_for_single_image(archiveID: str, graph: Graph):
 
 
 ###############################################################################
+# 5. CALCULATE IE PRECISION, RECALL AND F1-SCORE
+###############################################################################
+import os
+import traceback
+import json
+import shutil
+from statistics import mean
+from bs4 import BeautifulSoup
+from src.utils import pagexml_to_html
+from src.metrics import infomration_extraction_precision_recall
+from src.person_info_extraction import extract_info_LLM
+from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
+from statistics import mean
+from experiment_1 import parse_html_table, extract_persons_from_table
+
+DATA_DIR = "data/tables/pagexml"
+GT_POLYGON_DIR = "data/labels/polygons"
+GT_HTML_DIR = "data/labels/tables"
+GT_INFO_DIR = "data/labels/info"
+OUTPUT_HTML_DIR = "data/tables/html"
+OUTPUT_JSON_DIR = "data/json"
+TEMP_DIR = "data/temp"
+SCHEMA_PATH = "data/schema/personbasicinfo.yaml"
+LLM_MODEL = "ollama/llama3"
+
+# storage for metrics
+all_scores = {
+    "Precision": [],
+    "Recall": [],
+    "F1-score": []
+}
+
+def process_single_image(image_name, IE_method="ontogpt"):
+    """Run the full evaluation pipeline for one image and return metrics."""
+    print("\n===================================")
+    print(f"Processing {image_name}...")
+
+    pagexml_file = os.path.join(DATA_DIR, f"{image_name}.xml")
+    output_html_file = os.path.join(OUTPUT_HTML_DIR, f"{image_name}.html")
+    pagexml_to_html(pagexml_file, output_html_file)
+
+    with open(output_html_file, encoding="utf-8") as f:
+        pred_html = f.read()
+
+    # --- Information Extraction ---
+    logical_rows = parse_html_table(pred_html)
+
+    if IE_method == "llm":
+        # TODO: this method do not store row index in the JSON output
+        persons = extract_persons_from_table(logical_rows)
+        json_obj = {"persons": persons}
+        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
+        with open(json_out_path, "w", encoding="utf-8") as jf:
+            json.dump(json_obj, jf, ensure_ascii=False, indent=2)
+    
+    if IE_method == "ontogpt":
+        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
+        os.makedirs(TEMP_DIR, exist_ok=True)
+
+        try:
+            for i, row in enumerate(logical_rows):
+                print(f"Processing row {i+1}/{len(logical_rows)}")
+                temp_file = f"person_{i}.json"
+                try:
+                    information_extractor(i, row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
+                except Exception as e:
+                    print(f" ❌ Error processing row {i}: {e}")
+                    traceback.print_exc()
+                    continue
+
+            persons = []
+
+            for filename in os.listdir(TEMP_DIR):
+                if filename.endswith(".json") and filename.startswith("person_"):
+                    with open(os.path.join(TEMP_DIR, filename), 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        # each temp file is expected to be {'persons': [...]}
+                        person = data.get("persons", [])
+                        if isinstance(persons, list):
+                            persons.extend(person)
+                        elif person:
+                            persons.append(persons)
+
+            with open(json_out_path, 'w', encoding='utf-8') as f:
+                json.dump({"persons": persons}, f, indent=2, ensure_ascii=False)   
+        finally: 
+            shutil.rmtree(TEMP_DIR, ignore_errors=True)
+
+    # --- Compare with Ground Truth JSON ---
+    with open(os.path.join(GT_INFO_DIR, f"{image_name.replace('.jpg', '.json')}"), encoding="utf-8") as f:
+        gt_info = json.load(f)
+    with open(json_out_path, encoding="utf-8") as f:
+        pred_info = json.load(f)
+
+    # info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
+    precision, recall, f1_score = infomration_extraction_precision_recall(
+        pred_info.get("persons", []), gt_info.get("persons", []), threshold=0.4
+    )
+    
+    print(f"Information Extraction - \nPrecision: {precision:.4f}, \nRecall: {recall:.4f}, \nF1-score: {f1_score:.4f}")
+    return precision, recall, f1_score
+
+def calculate_IE_score():
+    for file in os.listdir(DATA_DIR): 
+        if not file.endswith(".xml"): 
+            continue 
+
+        image_name = file.replace(".xml", "") 
+
+        try: 
+            p, r , f= process_single_image(image_name) 
+            all_scores["Precision"].append(p) 
+            all_scores["Recall"].append(r) 
+            all_scores["F1-score"].append(f) 
+            print(f"✅ Finished processing {image_name}")
+        except Exception as e: 
+            # Print detailed error info
+            print("❌ [ERROR] An exception occurred!")
+            traceback.print_exc()
+
+
+    # --- Print summary averages ---
+    print("\n===================================") 
+    print("=== Average Metrics Across All Images ===") 
+    for key, vals in all_scores.items(): 
+        avg = mean(vals) if vals else 0.0 
+        print(f"{key}: {avg:.4f}")
+
+
+
+
+###############################################################################
 # MAIN PIPELINE
 ###############################################################################
 
@@ -342,6 +476,9 @@ def main():
 
     print("\n=== 4. Building JSON files ===")
     build_json_for_images(folio)
+
+    print("\n=== 5. Calculating IE scores ===")
+    calculate_IE_score()
 
 if __name__ == "__main__":
     main()
