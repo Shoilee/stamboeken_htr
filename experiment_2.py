@@ -73,7 +73,7 @@ def create_sub_graph_for_folio(folio_no: int) -> str:
     graph.parse("Bronbeek_Data/Stamboeken.trig", format="trig")
 
     batch_size = 100
-    max_workers = 16  # you can increase if you want
+    max_workers = 4  # you can increase if you want
     consecutive_empty_limit = 10
 
     offset = 0
