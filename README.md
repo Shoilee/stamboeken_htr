@@ -87,15 +87,15 @@ Pipeline Diagram
 Convert image (e.g. jpg)→ structured table (e.g., HTML or 2D array)
 ```mermaid
 graph TD;
-   A((Image)) --> B[Cell Bounding Box Detection];
-   A((Image)) --> C[Handwritten Text Recognition];
-   B -- cell logical sequence <br/>cell bounding box coords --> D[Cell to Text Mapping]
+   A((Image)) --> B["1(A) Cell Bounding Box Detection"];
+   A((Image)) --> C["1(B) Handwritten Text Recognition"];
+   B -- cell logical sequence <br/>cell bounding box coords --> D[2. Cell to Text Mapping]
    C --text lines with coords [pagexml]--> D;
-   D --cell logical sequence + text content--> E[Construct Markup Table];
+   D --cell logical sequence + text content--> E[3. Construct Markup Table];
    E-->F((Table))
 
 ```
-#### Cell Bounding Box Detection (using LORE-TSR)
+#### 1(A) Cell Bounding Box Detection (using LORE-TSR)
 
 - Add LORE-TSR as a Submodule
 
@@ -141,7 +141,7 @@ graph TD;
 
 ---
 
-#### Handwritten Text Recognition (using Loghi)
+#### 1(B) Handwritten Text Recognition (using Loghi)
 
 - Create the environment from the htr_env.yml file:
    ```bash
@@ -169,7 +169,7 @@ graph TD;
    ```
 
 
-#### Reconstruct HTML table
+#### 3. Reconstruct HTML table
 
    ```bash
    python src/reconstruct_table.py
