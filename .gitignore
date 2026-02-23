@@ -21,3 +21,4 @@ data/*
 !data/schema/
 src/webapp/uploads/*
 exp-1
+exp-2
