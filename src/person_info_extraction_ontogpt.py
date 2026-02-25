@@ -153,56 +153,70 @@ def match_entity(raw_value, named_entities):
 
 
 def process_value(row_index, value, named_entities):
-    """Recursive converter for values."""
-
+    """
+    Recursively process any YAML value — scalar, list, dict — and
+    resolve named entity references.
+    """
+    # Handle nested dicts
     if isinstance(value, dict):
-        return {k: process_value(row_index, v, named_entities) for k, v in value.items() if k != "id"}
+        processed_dict = {}
+        for key, val in value.items():
+            if key == "id":
+                continue
+            processed_dict[key] = process_value(row_index, val, named_entities)
+        return processed_dict
 
+    # Handle lists (e.g., list of dicts or strings)
+    if isinstance(value, list):
+        return [process_value(row_index, item, named_entities) for item in value]
+
+    # Handle scalar values (strings, numbers, None, etc.)
     ent = match_entity(value, named_entities)
-
     if ent:
-        return { 
+        return {
             "value": ent.get("label"),
             "row": row_index,
             "cell": ent.get("cell"),
             "original_spans": ent.get("original_spans"),
         }
 
-    return {"value": value, "row": row_index, "cell": None, "original_spans": None}
+    # Default: plain literal with no mapped entity
+    return {
+        "value": value,
+        "row": row_index,
+        "cell": None,
+        "original_spans": None,
+    }
 
 
 def convert_yaml_to_json(row_index, yaml_path, json_output):
     """
-    Converts OntoGPT YAML output into normalized JSON.
-    This version safely handles cases where extracted_object
-    or named_entities are missing or malformed.
+    Converts OntoGPT YAML output into normalized JSON, supporting
+    nested structures safely.
     """
-
     data = load_yaml(yaml_path)
 
     extracted_raw = data.get("extracted_object")
-    if not isinstance(extracted_raw, dict):
-        print("Warning: YAML has no 'extracted_object'. Ignoring .")
-        extracted = {}
+    if not isinstance(extracted_raw, (dict, list)):
+        print("Warning: Invalid or missing 'extracted_object'.")
         return
-    else:
-        extracted = deepcopy(extracted_raw)
 
-    named_entities_raw = data.get("named_entities")
-    if not isinstance(named_entities_raw, list):
-        print("Warning: YAML has no 'named_entities'. Ignoring it.")
+    named_entities = data.get("named_entities", [])
+    if not isinstance(named_entities, list):
+        print("Warning: 'named_entities' not found or malformed.")
         named_entities = []
-        return
-    else:
-        named_entities = named_entities_raw
 
-    person = {
-        key: process_value(row_index, value, named_entities)
-        for key, value in extracted.items()
-        if key != "id"
-    }
+    # Ensure proper recursion for both dict and list structures
+    if isinstance(extracted_raw, dict):
+        processed = {
+            key: process_value(row_index, val, named_entities)
+            for key, val in extracted_raw.items()
+            if key not in ("id", "type")
+        }
+    else:  # extracted_raw is a list
+        processed = [process_value(row_index, item, named_entities) for item in extracted_raw]
 
-    write_json(json_output, {"persons": [person]})
+    write_json(json_output, {"persons": [processed]})
 
 
 
