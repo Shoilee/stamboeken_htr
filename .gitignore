@@ -27,3 +27,4 @@ src/webapp/uploads/*
 /data/labels/NL*
 exp-1
 exp-2
+src/*.ipynb
