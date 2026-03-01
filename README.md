@@ -7,7 +7,7 @@ This project converts handwritten table images into structured Knowledge Graphs 
 ---
 
 Historical handwritten tables contain rich structured information but remain severely under-utilised due to challenges such as irregular layouts, degraded page conditions, and highly variable handwriting.
-This repository provides a modular, traceble, provenance-aware pipeline to convert such archival tabular documents into Knowledge Graphs (KGs).
+This repository provides a modular, provenance-aware pipeline to convert such archival tabular documents into Knowledge Graphs (KGs).
 
 The system integrates:
 
@@ -21,7 +21,7 @@ The system integrates:
 
 - Provenance Graph construction, tracing from image → cell → entity
 
-The pipeline supports multiple reconstruction approaches (Transkribus, ML-based detectors, modular LLM reconstruction) and captures human corrections for updated provenance and transparency.
+The pipeline supports multiple table reconstruction approaches (Transkribus, ML-based detectors, modular LLM reconstruction) to compare the ability for human corrections and provence provenance through intermeiate represantation.
 
 ---
 Pipeline Diagram
@@ -56,7 +56,7 @@ graph TD;
    cd Image2TableBoundingBoxDetection
    ```
 
-   This repo uses a modified version of [LORE-TSR](https://github.com/AlibabaResearch/AdvancedLiterateMachineryDocumentUnderstanding/LORE-TSR)** designed to work on *CPU-only* systems (no CUDA required).
+   This repo uses a modified version of [LORE-TSR](https://github.com/AlibabaResearch/AdvancedLiterateMachineryDocumentUnderstanding/LORE-TSR) designed to work on *CPU-only* systems (no CUDA required).
 
    > 💡 *Note:* For full GPU (CUDA) support, use the original LORE-TSR repository.
 
@@ -76,7 +76,7 @@ graph TD;
    ./make.sh
    ```
 
-- Download Pretrained Model table cell detection model: model [ckpt_wireless](https://drive.google.com/file/d/1cBaewRwlZF1tIZovT49HpJZ5wlb3nSCw/view). Then create a model directory and move the downloaded file there:
+- Download Pretrained Model table cell detection model: model [ckpt_wtw](https://drive.google.com/file/d/1n33c9jmGmjSfRbheleE1pqiIXBb_BCEw/view). Then create a model directory and move the downloaded file there:
 
    ```
    cd ../../../../../ 
@@ -145,16 +145,13 @@ run src/llm_pagexml.ipynb
 ## 2. Information Extraction (IE) 
 
 📝 Extract attribute value, given desired schema, using:
-- Regex patterns
-- Large Language Models (LLMs)
-- OntoGPT
+- OntoGPT through [script](src/person_info_extraction_ontogpt.py)
 
 ## 3. KG Construction (Source-Aware Mapping)
 
-🔄 Convert extracted information into RDF **triples**
+🔄 Convert extracted information into RDF **triples** using
 
-📍 Track table structure (bounding boxes or indexes) for each cell  
-🔗 Supports triple-level provenance using Semantic Web / Linked Data models
+- [script](src/construct_KG.py) 
 
 
 ## Directory Structure
@@ -172,13 +169,9 @@ handwritten-table-kg/
 |      |── csv/                 # table in csv - cell logical secquence with text content
 |      |── 2D/                  # table in 2D-array
 |      |── html/                # table in html
-│   ├── lines/                  # HTRed text lines with coords (csv files)
-│   ├── triples/                # Final extracted RDF triples (TTL, JSON-LD, etc.)
+│   ├── json/                   # Extracted JSON objects per image
+│   ├── triples/                # Final extracted RDF triples (both assesertion and provenance graph)
 │   └── examples/               # Example files for testing/demo
-│
-├── 📁 models/                  # Pretrained models
-│   ├── laypa/                  # Layout analysis model
-│   └── htr/                    # HTR model (e.g., float32-generic-2023-02-15)
 │
 ├── 📁 src/                     # All source code
 │   ├── __init__.py
