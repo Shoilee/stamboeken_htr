@@ -56,7 +56,7 @@ graph TD;
    cd Image2TableBoundingBoxDetection
    ```
 
-   This repo uses a modified version of [LORE-TSR](https://github.com/AlibabaResearch/AdvancedLiterateMachineryDocumentUnderstanding/LORE-TSR) designed to work on *CPU-only* systems (no CUDA required).
+   This repo uses a modified version of [LORE-TSR](https://github.com/AlibabaResearch/AdvancedLiterateMachinery/tree/main/DocumentUnderstanding/LORE-TSR) designed to work on *CPU-only* systems (no CUDA required).
 
    > 💡 *Note:* For full GPU (CUDA) support, use the original LORE-TSR repository.
 
