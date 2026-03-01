@@ -17,9 +17,9 @@ The system integrates:
 
 - LLM-based information extraction
 
-- KG construction
+- Assersion Graph construction
 
-- provenance tracing from image → cell → entity
+- Provenance Graph construction, tracing from image → cell → entity
 
 The pipeline supports multiple reconstruction approaches (Transkribus, ML-based detectors, modular LLM reconstruction) and captures human corrections for updated provenance and transparency.
 
@@ -27,55 +27,7 @@ The pipeline supports multiple reconstruction approaches (Transkribus, ML-based 
 Pipeline Diagram
 ---
 
-```pgsql
- ┌───────────────────────────────────────────────────────────────┐
- │                           IMAGE                               │
- │            (Handwritten Historical Table Page)                │
- └───────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
- ┌───────────────────────────────────────────────────────────────┐
- │                 1. TABLE RECONSTRUCTION                       │
- │  ┌───────────────────────────────┐   ┌──────────────────────┐ │
- │  │ 1(A) Cell Detection (TSR)     │   │ 1(B)Handwriting (HTR)│ │
- │  │                               │   │ Recognizer           │ │
- │  └───────────────────────────────┘   └──────────────────────┘ │
- │            │                                      │           |
- │            └───────── Merge into PageXML ─────────┘           |
- └───────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
- ┌───────────────────────────────────────────────────────────────┐
- │                  2. PAGE XML → HTML TABLE                     │
- │  • Reconstruct structured <table><tr><td> from XML            │
- │    (preserving row/col spans + cell id)                       │
- └───────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
- ┌───────────────────────────────────────────────────────────────┐
- │               3. ROW-LEVEL INFORMATION EXTRACTION             │
- │  For each table row:                                          │
- │   • Extract row text                                          │
- │   • OntoGPT(text, KG schema) →YAML                            │
- │   • YAML → Normalized JSON                                    │
- │   • Add provenance (cell ID, text spans)                      │
- └───────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
- ┌───────────────────────────────────────────────────────────────┐
- │               4. KNOWLEDGE GRAPH CONSTRUCTION                 │
- │   • Build assertion triples                                   │
- │   • Build provenance triples                                  │
- │   • Output as RDF (Trig)                                      │
- └───────────────────────────────────────────────────────────────┘
-                            │
-                            ▼
- ┌───────────────────────────────────────────────────────────────┐
- │                     FINAL KNOWLEDGE GRAPH                     │
- │     (Traceable Entities to HTML Table & Source Image)         │
- └───────────────────────────────────────────────────────────────┘
-
-```
+![pipeline_diagram](pipeline_diagram.png)
 
 ---
 ## 1. Table Reconstruction (TSR + HTR)
