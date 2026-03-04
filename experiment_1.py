@@ -1,26 +1,386 @@
-# %%
+from rdflib import Dataset, Graph, Namespace
+import os
+import time
+import json
+
+###############################################################################
+# 1. CREATE SUBGRAPH FOR A GIVEN FOLIO
+###############################################################################
+import time
+from rdflib import Dataset, Graph
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
+
+# ----------------------------
+# Worker function (runs in a separate process)
+# ----------------------------
+def run_offset_batch(args):
+    folio_no, ds, offset, batch_size = args
+
+    query = f"""
+    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+    PREFIX sdo:  <https://schema.org/>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+    CONSTRUCT {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+        ?archive rico:hasDerivedArchiveNumber ?archiveN .
+        ?archive rico:hasInventoryNumber ?inv .
+        ?archive sdo:identifier ?invNum .
+        ?archive sdo:url ?archiveLink .
+        ?person ?p ?o .
+        ?o ?p1 ?o1 .
+    }}
+    WHERE {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+
+        BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
+        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
+        BIND(xsd:integer(?inv) AS ?invNum)
+        FILTER (?invNum = {folio_no})
+
+        ?person ?p ?o .
+        OPTIONAL {{ ?o  ?p1 ?o1 . }}
+    }}
+    LIMIT {batch_size}
+    OFFSET {offset}
+    """
+
+    g_out = Graph()
+    for g in ds.graphs():
+        try:
+            sub = g.query(query)
+            for s, p, o in sub:
+                g_out.add((s, p, o))
+        except Exception:
+            continue
+
+    return offset, len(g_out), list(g_out)
+
+
+# ----------------------------
+# Main parallel controller
+# ----------------------------
+def create_sub_graph_for_folio(folio_no: int) -> str:
+    out_graph = Graph()
+
+    graph = Dataset()
+    graph.parse("Bronbeek_Data/Stamboeken.trig", format="trig")
+
+    batch_size = 100
+    max_workers = 4  # you can increase if you want
+    consecutive_empty_limit = 10
+
+    offset = 0
+    empty_count = 0
+
+    try:
+        with ProcessPoolExecutor(max_workers=max_workers) as executor:
+            futures = {}
+
+            # Submit first round of tasks
+            for i in range(max_workers):
+                futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
+                offset += batch_size
+
+            while futures:
+                done, _ = as_completed(futures), None
+
+                for future in done:
+                    off = futures.pop(future)
+
+                    try:
+                        batch_offset, n_triples, triples = future.result()
+                    except Exception as e:
+                        print(f"[ERROR] Offset {off}: {e}")
+                        continue
+
+                    print(f"Offset {batch_offset} → {n_triples} triples")
+
+                    # Merge received triples
+                    for t in triples:
+                        out_graph.add(t)
+
+                    # Update empty batch counter
+                    if n_triples == 0:
+                        empty_count += 1
+                    else:
+                        empty_count = 0
+
+                    # Stop condition
+                    if empty_count >= consecutive_empty_limit:
+                        print("⏳ No results for too many consecutive offsets. Stopping.")
+                        futures.clear()
+                        break
+
+                    # Submit a new task replacing the finished one
+                    futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
+                    offset += batch_size
+
+    finally:
+        out_path = f"folio_{folio_no}_graph.ttl"
+        out_graph.serialize(out_path, format="turtle")
+        print(f"✔ Created subgraph with {len(out_graph)} triples")
+        return out_path
+
+
+###############################################################################
+# 2. COUNT STATISTICS
+###############################################################################
+
+def count_new_graph_stats(folio_no: int):
+    g = Graph()
+    g.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
+
+    query = f"""
+    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+    PREFIX sdo:  <https://schema.org/>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+    SELECT (COUNT(DISTINCT ?person) AS ?persons)
+           (COUNT(DISTINCT ?archiveID) AS ?images)
+    WHERE {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+
+        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") as ?inv)
+        BIND(xsd:integer(?inv) AS ?invNum)
+        FILTER (?invNum = {folio_no})
+    }}
+    """
+
+    for row in g.query(query):
+        print(f"Total persons: {row.persons}")
+        print(f"Total unique images: {row.images}")
+
+
+###############################################################################
+# 3. DOWNLOAD IMAGES FROM ARCHIVAL LINKS
+###############################################################################
+
+def download_images_for_folio(folio_no: int, output_dir="data/images"):
+    from src.image_downlaod.download_stamboeken import process_archive_link
+    from src.image_downlaod.download_control_book import download_image
+
+    os.makedirs(output_dir, exist_ok=True)
+
+    g = Graph()
+    g.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
+
+    query = f"""
+    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
+    PREFIX sdo:  <https://schema.org/>
+    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
+
+    SELECT ?archiveID ?archiveLink WHERE {{
+        ?person a sdo:Person .
+        ?person rico:isOrWasSubjectOf ?archive .
+        ?archive rico:identifier ?archiveID .
+
+        BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
+        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
+        BIND(xsd:integer(?inv) AS ?invNum)
+        FILTER (?invNum = {folio_no})
+
+        BIND(uri(CONCAT(
+            "https://www.nationaalarchief.nl/onderzoeken/archief/",
+            ?archiveN, "/invnr/", ?inv, "/file/", ?archiveID
+        )) AS ?archiveLink)
+    }}
+    """
+
+    for row in g.query(query):
+        image_name = f"{row.archiveID}.jpg"
+        download_url = process_archive_link(row.archiveLink, image_name)
+
+        if download_url:
+            download_image(download_url, image_name, output_dir)
+        else:
+            print(f"⚠ Could not download {image_name}")
+
+
+###############################################################################
+# 4. BUILD JSON INFORMATION EXTRACTION FILES
+###############################################################################
+
+class RDFToJSONConverter:
+    def __init__(self, graph_path: str):
+        self.graph = Graph()
+        self.graph.parse(graph_path, format="turtle")
+
+        self.ns_schema = Namespace("https://schema.org/")
+        self.ns_pnv = Namespace("https://w3id.org/pnv#")
+        self.ns_rdfs = Namespace("http://www.w3.org/2000/01/rdf-schema#")
+        self.ns_dbpedia = Namespace("http://dbpedia.org/ontology/")
+
+    def convert(self):
+        persons = []
+        for person in self.graph.subjects(predicate=None, object=self.ns_schema.Person):
+            # Extract name details
+            name_uri = self.graph.value(person, self.ns_pnv.hasName)
+            name_data = {
+                "label": self._lit(name_uri, self.ns_rdfs.label),
+                "basesurname": self._lit(name_uri, self.ns_pnv.baseSurname),
+                "firstnames": self._lit(name_uri, self.ns_pnv.firstName),
+                "infix": self._lit(name_uri, self.ns_pnv.infix),
+            }
+
+            # Extract other details
+            date_of_birth = self._lit(person, self.ns_schema.birthDate)
+            birth_place_uri = self.graph.value(person, self.ns_schema.birthPlace)
+            birth_place = self._lit(birth_place_uri, self.ns_schema.name)
+            death_place_uri = self.graph.value(person, self.ns_schema.deathPlace)
+            death_place = self._lit(death_place_uri, self.ns_schema.name)
+            nationality_uri = self.graph.value(person, self.ns_schema.nationality)
+            nationality = self._lit(nationality_uri, self.ns_schema.name)
+            military_rank_uri = self.graph.value(person, self.ns_dbpedia.militaryRank)
+            military_rank = self._lit(military_rank_uri, self.ns_schema.roleName)
+
+            # Build structured person object
+            person_obj = {
+                "name": self._wrap_dict(name_data),
+                "date_of_birth": self._wrap(date_of_birth),
+                "birth_place": self._wrap(birth_place),
+                "last_residence": self._wrap(death_place),
+                "country_of_nationality": self._wrap(nationality),
+                "military_rank": self._wrap(military_rank)
+            }
+            persons.append(person_obj)
+
+        return {"persons": persons}
+
+    def _lit(self, s, p):
+        if not s:
+            return None
+        v = self.graph.value(s, p)
+        return str(v) if v else None
+
+    def _place(self, s, p):
+        uri = self.graph.value(s, p)
+        if not uri:
+            return "Not mentioned"
+        name = self.graph.value(uri, self.ns_schema.name)
+        return str(name) if name else "Not mentioned"
+
+    def _wrap(self, val):
+        return {"value": val, "row": None, "cell": None, "original_spans": None}
+
+    def _wrap_dict(self, d):
+        wrapped = {}
+        for k, v in d.items():
+            wrapped[k] = self._wrap(v)
+        return wrapped
+
+
+def build_json_for_images(folio_no: int):
+    image_dir = "data/images"
+    graph = Graph()
+    graph.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
+
+    out_graph_dir = "data/graph"
+    out_json_dir = "data/labels/info"
+    os.makedirs(out_graph_dir, exist_ok=True)
+    os.makedirs(out_json_dir, exist_ok=True)
+
+    for file in os.listdir(image_dir):
+        if not file.endswith(".jpg"):
+            continue
+
+        archiveID = file.replace(".jpg", "")
+        print(f"➡ Building JSON for {archiveID}")
+
+        image_graph = construct_graph_for_single_image(archiveID, graph)
+        ttl_path = f"{out_graph_dir}/{archiveID}.ttl"
+        image_graph.serialize(ttl_path, format="turtle")
+        print(f"The main graph has length: {len(graph)},\n"
+              f"The sub-graph has length: {len(image_graph)}")
+
+        json_path = f"{out_json_dir}/{archiveID}.json"
+        conv = RDFToJSONConverter(ttl_path)
+        data = conv.convert()
+
+        with open(json_path, "w", encoding="utf8") as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+
+
+def construct_graph_for_single_image(archiveID: str, graph: Graph):
+    """
+    Creates a subgraph for one image only.
+    """
+    new_g = Graph()
+
+    query = f"""
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+        prefix rico: <https://www.ica.org/standards/RiC/ontology#>
+        prefix sdo:  <https://schema.org/> 
+        prefix dbo:  <http://dbpedia.org/ontology/>
+        prefix xsd:  <http://www.w3.org/2001/XMLSchema#>
+        prefix pvn:  <https://w3id.org/pnv#>
+        prefix ricrst: <https://www.ica.org/standards/RiC/vocabularies/recordSetTypes#>
+        CONSTRUCT 
+        {{
+            # --- original triples ---
+            ?person a sdo:Person .
+            ?person rico:isOrWasSubjectOf ?archive .
+            ?archive rico:identifier ?archiveID .
+
+            # --- derived triples ---
+            ?archive rico:hasDerivedArchiveNumber ?archiveN .
+            ?archive rico:hasInventoryNumber ?inv .
+            ?archive sdo:identifier ?invNum .
+            ?archive sdo:url ?archiveLink .
+
+            ?person ?p ?o .
+            ?o ?p1 ?o1 .
+
+        }}
+        {{
+            ### ORIGINAL QUERY
+            ?person a sdo:Person .
+            ?person rico:isOrWasSubjectOf ?archive .
+            bind("{str(archiveID)}" as ?archiveID) .
+            ?archive rico:identifier ?archiveID .
+
+            bind(replace(?archiveID, 'NL-HaNA_(.*?)_.*?_.*$','$1') as ?archiveN)
+            BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
+            BIND(xsd:integer(?inv) AS ?invNum)
+            FILTER (?invNum = 45)
+
+            ### ALL PERSON-SUBJECT TRIPLES
+            ?person ?p ?o .
+            OPTIONAL {{ ?o  ?p1 ?o1 . }}
+        }}
+    """
+
+    for s, p, o in graph.query(query):
+        new_g.add((s, p, o))
+
+    return new_g
+
+
+###############################################################################
+# 5. CALCULATE IE PRECISION, RECALL AND F1-SCORE
+###############################################################################
 import os
 import traceback
 import json
 import shutil
 from statistics import mean
 from bs4 import BeautifulSoup
-from shapely.geometry import Polygon
-from src.utils import (
-    pagexml_to_html,
-    format_td
-)
-from src.metrics import (
-    compute_mAP,
-    TEDS,
-    infomration_extraction_precision_recall,
-    best_match_similarity
-)
-from src.person_info_extraction import extract_info_LLM
+from src.utils import pagexml_to_html
+from src.metrics import infomration_extraction_precision_recall
+# from src.person_info_extraction import extract_info_LLM
 from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
 from statistics import mean
+from experiment_3 import parse_html_table, extract_persons_from_table
 
-# %%
 DATA_DIR = "data/tables/pagexml"
 GT_POLYGON_DIR = "data/labels/polygons"
 GT_HTML_DIR = "data/labels/tables"
@@ -33,82 +393,10 @@ LLM_MODEL = "ollama/llama3"
 
 # storage for metrics
 all_scores = {
-    "mAP": [],
-    "TEDS-Struct": [],
-    "TEDS": [],
     "Precision": [],
     "Recall": [],
     "F1-score": []
 }
-
-
-# %% --- Utility Functions ---
-
-def calculate_teds(gt_html, pred_html):
-    """Compute TEDS and TEDS-Struct scores between two HTML tables."""
-    gt_html = format_td(gt_html)
-    teds = TEDS(structure_only=False)
-    teds_struct = TEDS(structure_only=True)
-
-    teds_score = teds.evaluate(gt_html, pred_html)
-    teds_struct_score = teds_struct.evaluate(gt_html, pred_html)
-    return teds_score, teds_struct_score
-
-
-def parse_html_table(html_content):
-    """Parse HTML table into logical rows, respecting rowspan/colspan."""
-    soup = BeautifulSoup(html_content, 'html.parser')
-    rows = soup.find_all('tr')
-
-    logical_rows = []
-    rowspans = {}
-
-    for r_idx, tr in enumerate(rows):
-        current_row = []
-        to_remove = []
-
-        # carry-down cells
-        for col_idx, (remaining, cell) in rowspans.items():
-            current_row.append(cell)
-            rowspans[col_idx][0] -= 1
-            if rowspans[col_idx][0] <= 0:
-                to_remove.append(col_idx)
-        for col_idx in to_remove:
-            del rowspans[col_idx]
-
-        # new cells
-        c_idx = 0
-        for td in tr.find_all('td'):
-            while c_idx in rowspans:
-                c_idx += 1
-            text = td.get_text(" ", strip=True)
-            cell_data = {
-                "text": text,
-                "id": td.get("id"),
-                "row": int(td.get("row", r_idx)),
-                "col": int(td.get("col", c_idx)),
-                "rowspan": int(td.get("rowspan", 1)),
-                "colspan": int(td.get("colspan", 1))
-            }
-            current_row.append(cell_data)
-            if cell_data["rowspan"] > 1:
-                rowspans[c_idx] = [cell_data["rowspan"] - 1, cell_data]
-            c_idx += cell_data["colspan"]
-
-        logical_rows.append(current_row)
-    return logical_rows
-
-
-def extract_persons_from_table(logical_rows):
-    """Extract structured person information from table rows."""
-    persons = []
-    for row in logical_rows:
-        person = json.loads(extract_info_LLM(row))
-        if person and not all(v["value"] is None for v in person.values()):
-            persons.append(person)
-    unique_persons = {json.dumps(p, sort_keys=True) for p in persons}
-    return [json.loads(p) for p in unique_persons]
-
 
 def process_single_image(image_name, IE_method="ontogpt"):
     """Run the full evaluation pipeline for one image and return metrics."""
@@ -119,17 +407,8 @@ def process_single_image(image_name, IE_method="ontogpt"):
     output_html_file = os.path.join(OUTPUT_HTML_DIR, f"{image_name}.html")
     pagexml_to_html(pagexml_file, output_html_file)
 
-    # --- Compute mAP ---
-    gt_file = os.path.join(GT_POLYGON_DIR, f"{image_name}.polygons.json")
-    pred_file = pagexml_file
-    mAP = compute_mAP(gt_file, pred_file)
-
-    # --- Compute TEDS ---
-    with open(os.path.join(GT_HTML_DIR, f"{image_name}.html"), encoding="utf-8") as f:
-        gt_html = f.read()
     with open(output_html_file, encoding="utf-8") as f:
         pred_html = f.read()
-    teds_score, teds_struct_score = calculate_teds(gt_html, pred_html)
 
     # --- Information Extraction ---
     logical_rows = parse_html_table(pred_html)
@@ -185,19 +464,11 @@ def process_single_image(image_name, IE_method="ontogpt"):
     precision, recall, f1_score = infomration_extraction_precision_recall(
         pred_info.get("persons", []), gt_info.get("persons", []), threshold=0.4
     )
-
-    print(f"Mean Average Precision (mAP): {mAP:.4f}")
-    print(f"TEDS-Struct: {teds_struct_score:.4f}")
-    print(f"TEDS: {teds_score:.4f}")
     
     print(f"Information Extraction - \nPrecision: {precision:.4f}, \nRecall: {recall:.4f}, \nF1-score: {f1_score:.4f}")
+    return precision, recall, f1_score
 
-    return mAP, teds_score, teds_struct_score, precision, recall, f1_score
-
-
-# %% --- Main Execution Loop ---
-
-def main():
+def calculate_IE_score():
     for file in os.listdir(DATA_DIR): 
         if not file.endswith(".xml"): 
             continue 
@@ -205,10 +476,7 @@ def main():
         image_name = file.replace(".xml", "") 
 
         try: 
-            mAP, teds, teds_struct, p, r , f= process_single_image(image_name) 
-            all_scores["mAP"].append(mAP) 
-            all_scores["TEDS-Struct"].append(teds_struct) 
-            all_scores["TEDS"].append(teds) 
+            p, r , f= process_single_image(image_name) 
             all_scores["Precision"].append(p) 
             all_scores["Recall"].append(r) 
             all_scores["F1-score"].append(f) 
@@ -225,6 +493,31 @@ def main():
     for key, vals in all_scores.items(): 
         avg = mean(vals) if vals else 0.0 
         print(f"{key}: {avg:.4f}")
+
+
+
+
+###############################################################################
+# MAIN PIPELINE
+###############################################################################
+
+def main():
+    folio = 45
+
+    # print("\n=== 1. Creating subgraph ===")
+    # graph_path = create_sub_graph_for_folio(folio)
+
+    print("\n=== 2. Counting statistics ===")
+    count_new_graph_stats(folio)
+
+    print("\n=== 3. Downloading images ===")
+    download_images_for_folio(folio)
+
+    print("\n=== 4. Building JSON files ===")
+    build_json_for_images(folio)
+
+    # print("\n=== 5. Calculating IE scores ===")
+    # calculate_IE_score()
 
 if __name__ == "__main__":
     main()

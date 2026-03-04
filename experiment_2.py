@@ -1,523 +1,165 @@
-from rdflib import Dataset, Graph, Namespace
-import os
-import time
 import json
-
-###############################################################################
-# 1. CREATE SUBGRAPH FOR A GIVEN FOLIO
-###############################################################################
-import time
-from rdflib import Dataset, Graph
-from concurrent.futures import ProcessPoolExecutor, as_completed
-
-
-# ----------------------------
-# Worker function (runs in a separate process)
-# ----------------------------
-def run_offset_batch(args):
-    folio_no, ds, offset, batch_size = args
-
-    query = f"""
-    PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-    PREFIX sdo:  <https://schema.org/>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-    CONSTRUCT {{
-        ?person a sdo:Person .
-        ?person rico:isOrWasSubjectOf ?archive .
-        ?archive rico:identifier ?archiveID .
-        ?archive rico:hasDerivedArchiveNumber ?archiveN .
-        ?archive rico:hasInventoryNumber ?inv .
-        ?archive sdo:identifier ?invNum .
-        ?archive sdo:url ?archiveLink .
-        ?person ?p ?o .
-        ?o ?p1 ?o1 .
-    }}
-    WHERE {{
-        ?person a sdo:Person .
-        ?person rico:isOrWasSubjectOf ?archive .
-        ?archive rico:identifier ?archiveID .
-
-        BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
-        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
-        BIND(xsd:integer(?inv) AS ?invNum)
-        FILTER (?invNum = {folio_no})
-
-        ?person ?p ?o .
-        OPTIONAL {{ ?o  ?p1 ?o1 . }}
-    }}
-    LIMIT {batch_size}
-    OFFSET {offset}
-    """
-
-    g_out = Graph()
-    for g in ds.graphs():
-        try:
-            sub = g.query(query)
-            for s, p, o in sub:
-                g_out.add((s, p, o))
-        except Exception:
-            continue
-
-    return offset, len(g_out), list(g_out)
-
-
-# ----------------------------
-# Main parallel controller
-# ----------------------------
-def create_sub_graph_for_folio(folio_no: int) -> str:
-    out_graph = Graph()
-
-    graph = Dataset()
-    graph.parse("Bronbeek_Data/Stamboeken.trig", format="trig")
-
-    batch_size = 100
-    max_workers = 4  # you can increase if you want
-    consecutive_empty_limit = 10
-
-    offset = 0
-    empty_count = 0
-
-    try:
-        with ProcessPoolExecutor(max_workers=max_workers) as executor:
-            futures = {}
-
-            # Submit first round of tasks
-            for i in range(max_workers):
-                futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
-                offset += batch_size
-
-            while futures:
-                done, _ = as_completed(futures), None
-
-                for future in done:
-                    off = futures.pop(future)
-
-                    try:
-                        batch_offset, n_triples, triples = future.result()
-                    except Exception as e:
-                        print(f"[ERROR] Offset {off}: {e}")
-                        continue
-
-                    print(f"Offset {batch_offset} → {n_triples} triples")
-
-                    # Merge received triples
-                    for t in triples:
-                        out_graph.add(t)
-
-                    # Update empty batch counter
-                    if n_triples == 0:
-                        empty_count += 1
-                    else:
-                        empty_count = 0
-
-                    # Stop condition
-                    if empty_count >= consecutive_empty_limit:
-                        print("⏳ No results for too many consecutive offsets. Stopping.")
-                        futures.clear()
-                        break
-
-                    # Submit a new task replacing the finished one
-                    futures[executor.submit(run_offset_batch, (folio_no, graph, offset, batch_size))] = offset
-                    offset += batch_size
-
-    finally:
-        out_path = f"folio_{folio_no}_graph.ttl"
-        out_graph.serialize(out_path, format="turtle")
-        print(f"✔ Created subgraph with {len(out_graph)} triples")
-        return out_path
-
-
-###############################################################################
-# 2. COUNT STATISTICS
-###############################################################################
-
-def count_new_graph_stats(folio_no: int):
-    g = Graph()
-    g.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
-
-    query = f"""
-    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-    PREFIX sdo:  <https://schema.org/>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-    SELECT (COUNT(DISTINCT ?person) AS ?persons)
-           (COUNT(DISTINCT ?archiveID) AS ?images)
-    WHERE {{
-        ?person a sdo:Person .
-        ?person rico:isOrWasSubjectOf ?archive .
-        ?archive rico:identifier ?archiveID .
-
-        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") as ?inv)
-        BIND(xsd:integer(?inv) AS ?invNum)
-        FILTER (?invNum = {folio_no})
-    }}
-    """
-
-    for row in g.query(query):
-        print(f"Total persons: {row.persons}")
-        print(f"Total unique images: {row.images}")
-
-
-###############################################################################
-# 3. DOWNLOAD IMAGES FROM ARCHIVAL LINKS
-###############################################################################
-
-def download_images_for_folio(folio_no: int, output_dir="data/images"):
-    from src.image_downlaod.download_stamboeken import process_archive_link
-    from src.image_downlaod.download_control_book import download_image
-
-    os.makedirs(output_dir, exist_ok=True)
-
-    g = Graph()
-    g.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
-
-    query = f"""
-    PREFIX rico: <https://www.ica.org/standards/RiC/ontology#>
-    PREFIX sdo:  <https://schema.org/>
-    PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
-
-    SELECT ?archiveID ?archiveLink WHERE {{
-        ?person a sdo:Person .
-        ?person rico:isOrWasSubjectOf ?archive .
-        ?archive rico:identifier ?archiveID .
-
-        BIND(REPLACE(?archiveID, "NL-HaNA_(.*?)_.*?_.*$", "$1") AS ?archiveN)
-        BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
-        BIND(xsd:integer(?inv) AS ?invNum)
-        FILTER (?invNum = {folio_no})
-
-        BIND(uri(CONCAT(
-            "https://www.nationaalarchief.nl/onderzoeken/archief/",
-            ?archiveN, "/invnr/", ?inv, "/file/", ?archiveID
-        )) AS ?archiveLink)
-    }}
-    """
-
-    for row in g.query(query):
-        image_name = f"{row.archiveID}.jpg"
-        download_url = process_archive_link(row.archiveLink, image_name)
-
-        if download_url:
-            download_image(download_url, image_name, output_dir)
-        else:
-            print(f"⚠ Could not download {image_name}")
-
-
-###############################################################################
-# 4. BUILD JSON INFORMATION EXTRACTION FILES
-###############################################################################
-
-class RDFToJSONConverter:
-    def __init__(self, graph_path: str):
-        self.graph = Graph()
-        self.graph.parse(graph_path, format="turtle")
-
-        self.ns_schema = Namespace("https://schema.org/")
-        self.ns_pnv = Namespace("https://w3id.org/pnv#")
-        self.ns_rdfs = Namespace("http://www.w3.org/2000/01/rdf-schema#")
-        self.ns_dbpedia = Namespace("http://dbpedia.org/ontology/")
-
-    def convert(self):
-        persons = []
-        for person in self.graph.subjects(predicate=None, object=self.ns_schema.Person):
-            # Extract name details
-            name_uri = self.graph.value(person, self.ns_pnv.hasName)
-            name_data = {
-                "label": self._lit(name_uri, self.ns_rdfs.label),
-                "basesurname": self._lit(name_uri, self.ns_pnv.baseSurname),
-                "firstnames": self._lit(name_uri, self.ns_pnv.firstName),
-                "infix": self._lit(name_uri, self.ns_pnv.infix),
-            }
-
-            # Extract other details
-            date_of_birth = self._lit(person, self.ns_schema.birthDate)
-            birth_place_uri = self.graph.value(person, self.ns_schema.birthPlace)
-            birth_place = self._lit(birth_place_uri, self.ns_schema.name)
-            death_place_uri = self.graph.value(person, self.ns_schema.deathPlace)
-            death_place = self._lit(death_place_uri, self.ns_schema.name)
-            nationality_uri = self.graph.value(person, self.ns_schema.nationality)
-            nationality = self._lit(nationality_uri, self.ns_schema.name)
-            military_rank_uri = self.graph.value(person, self.ns_dbpedia.militaryRank)
-            military_rank = self._lit(military_rank_uri, self.ns_schema.roleName)
-
-            # Build structured person object
-            person_obj = {
-                "name": self._wrap_dict(name_data),
-                "date_of_birth": self._wrap(date_of_birth),
-                "birth_place": self._wrap(birth_place),
-                "last_residence": self._wrap(death_place),
-                "country_of_nationality": self._wrap(nationality),
-                "military_rank": self._wrap(military_rank)
-            }
-            persons.append(person_obj)
-
-        return {"persons": persons}
-
-    def _lit(self, s, p):
-        if not s:
-            return None
-        v = self.graph.value(s, p)
-        return str(v) if v else None
-
-    def _place(self, s, p):
-        uri = self.graph.value(s, p)
-        if not uri:
-            return "Not mentioned"
-        name = self.graph.value(uri, self.ns_schema.name)
-        return str(name) if name else "Not mentioned"
-
-    def _wrap(self, val):
-        return {"value": val, "row": None, "cell": None, "original_spans": None}
-
-    def _wrap_dict(self, d):
-        wrapped = {}
-        for k, v in d.items():
-            wrapped[k] = self._wrap(v)
-        return wrapped
-
-
-def build_json_for_images(folio_no: int):
-    image_dir = "data/images"
-    graph = Graph()
-    graph.parse(f"folio_{folio_no}_graph.ttl", format="turtle")
-
-    out_graph_dir = "data/graph"
-    out_json_dir = "data/labels/info"
-    os.makedirs(out_graph_dir, exist_ok=True)
-    os.makedirs(out_json_dir, exist_ok=True)
-
-    for file in os.listdir(image_dir):
-        if not file.endswith(".jpg"):
-            continue
-
-        archiveID = file.replace(".jpg", "")
-        print(f"➡ Building JSON for {archiveID}")
-
-        image_graph = construct_graph_for_single_image(archiveID, graph)
-        ttl_path = f"{out_graph_dir}/{archiveID}.ttl"
-        image_graph.serialize(ttl_path, format="turtle")
-        print(f"The main graph has length: {len(graph)},\n"
-              f"The sub-graph has length: {len(image_graph)}")
-
-        json_path = f"{out_json_dir}/{archiveID}.json"
-        conv = RDFToJSONConverter(ttl_path)
-        data = conv.convert()
-
-        with open(json_path, "w", encoding="utf8") as f:
-            json.dump(data, f, indent=2, ensure_ascii=False)
-
-
-def construct_graph_for_single_image(archiveID: str, graph: Graph):
-    """
-    Creates a subgraph for one image only.
-    """
-    new_g = Graph()
-
-    query = f"""
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
-        prefix rico: <https://www.ica.org/standards/RiC/ontology#>
-        prefix sdo:  <https://schema.org/> 
-        prefix dbo:  <http://dbpedia.org/ontology/>
-        prefix xsd:  <http://www.w3.org/2001/XMLSchema#>
-        prefix pvn:  <https://w3id.org/pnv#>
-        prefix ricrst: <https://www.ica.org/standards/RiC/vocabularies/recordSetTypes#>
-        CONSTRUCT 
-        {{
-            # --- original triples ---
-            ?person a sdo:Person .
-            ?person rico:isOrWasSubjectOf ?archive .
-            ?archive rico:identifier ?archiveID .
-
-            # --- derived triples ---
-            ?archive rico:hasDerivedArchiveNumber ?archiveN .
-            ?archive rico:hasInventoryNumber ?inv .
-            ?archive sdo:identifier ?invNum .
-            ?archive sdo:url ?archiveLink .
-
-            ?person ?p ?o .
-            ?o ?p1 ?o1 .
-
-        }}
-        {{
-            ### ORIGINAL QUERY
-            ?person a sdo:Person .
-            ?person rico:isOrWasSubjectOf ?archive .
-            bind("{str(archiveID)}" as ?archiveID) .
-            ?archive rico:identifier ?archiveID .
-
-            bind(replace(?archiveID, 'NL-HaNA_(.*?)_.*?_.*$','$1') as ?archiveN)
-            BIND(REPLACE(?archiveID, "NL-HaNA_.*?_(.*?)_.*$", "$1") AS ?inv)
-            BIND(xsd:integer(?inv) AS ?invNum)
-            FILTER (?invNum = 45)
-
-            ### ALL PERSON-SUBJECT TRIPLES
-            ?person ?p ?o .
-            OPTIONAL {{ ?o  ?p1 ?o1 . }}
-        }}
-    """
-
-    for s, p, o in graph.query(query):
-        new_g.add((s, p, o))
-
-    return new_g
-
-
-###############################################################################
-# 5. CALCULATE IE PRECISION, RECALL AND F1-SCORE
-###############################################################################
 import os
-import traceback
-import json
-import shutil
-from statistics import mean
-from bs4 import BeautifulSoup
-from src.utils import pagexml_to_html
+from pathlib import Path
 from src.metrics import infomration_extraction_precision_recall
-# from src.person_info_extraction import extract_info_LLM
-from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
-from statistics import mean
-from experiment_1 import parse_html_table, extract_persons_from_table
 
-DATA_DIR = "data/tables/pagexml"
-GT_POLYGON_DIR = "data/labels/polygons"
-GT_HTML_DIR = "data/labels/tables"
-GT_INFO_DIR = "data/labels/info"
-OUTPUT_HTML_DIR = "data/tables/html"
-OUTPUT_JSON_DIR = "data/json"
-TEMP_DIR = "data/temp"
-SCHEMA_PATH = "data/schema/personbasicinfo.yaml"
-LLM_MODEL = "ollama/llama3"
 
-# storage for metrics
-all_scores = {
-    "Precision": [],
-    "Recall": [],
-    "F1-score": []
-}
+def count_provenance_and_total(json_path):
+    """
+    Reads the JSON file and counts:
+    1. Number of attributes with cell-level provenance (cell != null)
+    2. Total number of attributes in the persons list
+    """
 
-def process_single_image(image_name, IE_method="ontogpt"):
-    """Run the full evaluation pipeline for one image and return metrics."""
-    print("\n===================================")
-    print(f"Processing {image_name}...")
+    with open(json_path, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    pagexml_file = os.path.join(DATA_DIR, f"{image_name}.xml")
-    output_html_file = os.path.join(OUTPUT_HTML_DIR, f"{image_name}.html")
-    pagexml_to_html(pagexml_file, output_html_file)
+    persons = data.get("persons", [])
 
-    with open(output_html_file, encoding="utf-8") as f:
-        pred_html = f.read()
+    cell_provenance_count = 0
+    total_attributes = 0
 
-    # --- Information Extraction ---
-    logical_rows = parse_html_table(pred_html)
+    for person in persons:
+        for attr_name, attr_value in person.items():
+            
+            # Case 1: Nested attributes: person["name"]["basesurname"], etc.
+            if isinstance(attr_value, dict) and "value" not in attr_value:
+                # Example: "name" → {"basesurname": {...}, "firstnames": {...}}
+                for subattr_name, subattr in attr_value.items():
+                    total_attributes += 1
+                    if subattr.get("cell") is not None:
+                        cell_provenance_count += 1
 
-    if IE_method == "llm":
-        # TODO: this method do not store row index in the JSON output
-        persons = extract_persons_from_table(logical_rows)
-        json_obj = {"persons": persons}
-        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
-        with open(json_out_path, "w", encoding="utf-8") as jf:
-            json.dump(json_obj, jf, ensure_ascii=False, indent=2)
+            # Case 2: Normal attributes: person["birth_place"], etc.
+            else:
+                total_attributes += 1
+                if attr_value.get("cell") is not None:
+                    cell_provenance_count += 1
     
-    if IE_method == "ontogpt":
-        json_out_path = os.path.join(OUTPUT_JSON_DIR, f"{image_name}.json")
-        os.makedirs(TEMP_DIR, exist_ok=True)
+    provenance_ratio = round((cell_provenance_count / total_attributes) * 100, 2) if total_attributes else 0.0
 
-        try:
-            for i, row in enumerate(logical_rows):
-                print(f"Processing row {i+1}/{len(logical_rows)}")
-                temp_file = f"person_{i}.json"
-                try:
-                    information_extractor(i, row, schema_path=SCHEMA_PATH, json_output=os.path.join(TEMP_DIR, temp_file), temp_dir=TEMP_DIR, llm_model=LLM_MODEL)
-                except Exception as e:
-                    print(f" ❌ Error processing row {i}: {e}")
-                    traceback.print_exc()
-                    continue
+    return cell_provenance_count, total_attributes, provenance_ratio
 
-            persons = []
+def has_provenance(field):
+    return field.get("cell") is not None or field.get("original_spans") not in [None, [], ""]
 
-            for filename in os.listdir(TEMP_DIR):
-                if filename.endswith(".json") and filename.startswith("person_"):
-                    with open(os.path.join(TEMP_DIR, filename), 'r', encoding='utf-8') as f:
-                        data = json.load(f)
-                        # each temp file is expected to be {'persons': [...]}
-                        person = data.get("persons", [])
-                        if isinstance(persons, list):
-                            persons.extend(person)
-                        elif person:
-                            persons.append(persons)
 
-            with open(json_out_path, 'w', encoding='utf-8') as f:
-                json.dump({"persons": persons}, f, indent=2, ensure_ascii=False)   
-        finally: 
-            shutil.rmtree(TEMP_DIR, ignore_errors=True)
+# -------------------------------------
+# Filter one person: keep only provenance
+# -------------------------------------
+def filter_person(person):
+    filtered_person = {}
 
-    # --- Compare with Ground Truth JSON ---
-    with open(os.path.join(GT_INFO_DIR, f"{image_name.replace('.jpg', '.json')}"), encoding="utf-8") as f:
-        gt_info = json.load(f)
-    with open(json_out_path, encoding="utf-8") as f:
-        pred_info = json.load(f)
+    for attr_name, attr_value in person.items():
 
-    # info_sim = best_match_similarity(gt_info.get("persons", []), pred_info.get("persons", []))
-    precision, recall, f1_score = infomration_extraction_precision_recall(
-        pred_info.get("persons", []), gt_info.get("persons", []), threshold=0.4
+        # Case 1: nested attributes (e.g., "name": {...})
+        if isinstance(attr_value, dict) and "value" not in attr_value:
+            nested_filtered = {}
+
+            for sub_attr_name, sub_attr_value in attr_value.items():
+                if has_provenance(sub_attr_value):
+                    nested_filtered[sub_attr_name] = sub_attr_value
+
+            if nested_filtered:  # keep only if at least one survives
+                filtered_person[attr_name] = nested_filtered
+
+        # Case 2: flat attributes with value/row/cell/spans
+        else:
+            if has_provenance(attr_value):
+                filtered_person[attr_name] = attr_value
+
+    return filtered_person
+
+
+# -------------------------------------------------------------
+# Main: load JSON, filter all predicted persons, compute metrics
+# -------------------------------------------------------------
+def evaluate_after_provenance_filter(json_pred_path, json_gt_path):
+    """
+    Reads prediction JSON and ground-truth JSON.
+    Filters predictions by provenance.
+    Computes precision, recall, F1 using your existing function.
+    """
+
+    # --- Load prediction JSON ---
+    with open(json_pred_path, "r", encoding="utf-8") as f:
+        pred_json = json.load(f)
+
+    # --- Load ground truth JSON ---
+    with open(json_gt_path, "r", encoding="utf-8") as f:
+        gt_json = json.load(f)
+
+    list_pred_raw = pred_json.get("persons", [])
+    list_gt       = gt_json.get("persons", [])
+
+    # --- Filter predicted persons ---
+    list_pred_filtered = [filter_person(p) for p in list_pred_raw]
+
+    # --- Compute precision, recall, F1 ---
+    precision, recall, f1 = infomration_extraction_precision_recall(
+        list_pred_filtered,
+        list_gt,
+        threshold=0.4
     )
+
+    # print("Precision:", precision)
+    # print("Recall:", recall)
+    # print("F1-score:", f1)
+
+    return precision, recall, f1
+
+
+def main(directory_path):
+    """
+    Process all JSON files in a folder and compute average metrics.
+    """
+    json_files = list(Path(directory_path).glob("*.json"))
     
-    print(f"Information Extraction - \nPrecision: {precision:.4f}, \nRecall: {recall:.4f}, \nF1-score: {f1_score:.4f}")
-    return precision, recall, f1_score
-
-def calculate_IE_score():
-    for file in os.listdir(DATA_DIR): 
-        if not file.endswith(".xml"): 
-            continue 
-
-        image_name = file.replace(".xml", "") 
-
-        try: 
-            p, r , f= process_single_image(image_name) 
-            all_scores["Precision"].append(p) 
-            all_scores["Recall"].append(r) 
-            all_scores["F1-score"].append(f) 
-            print(f"✅ Finished processing {image_name}")
-        except Exception as e: 
-            # Print detailed error info
-            print("❌ [ERROR] An exception occurred!")
-            traceback.print_exc()
-
-
-    # --- Print summary averages ---
-    print("\n===================================") 
-    print("=== Average Metrics Across All Images ===") 
-    for key, vals in all_scores.items(): 
-        avg = mean(vals) if vals else 0.0 
-        print(f"{key}: {avg:.4f}")
-
-
-
-
-###############################################################################
-# MAIN PIPELINE
-###############################################################################
-
-def main():
-    folio = 45
-
-    # print("\n=== 1. Creating subgraph ===")
-    # graph_path = create_sub_graph_for_folio(folio)
-
-    print("\n=== 2. Counting statistics ===")
-    count_new_graph_stats(folio)
-
-    print("\n=== 3. Downloading images ===")
-    download_images_for_folio(folio)
-
-    print("\n=== 4. Building JSON files ===")
-    build_json_for_images(folio)
-
-    # print("\n=== 5. Calculating IE scores ===")
-    # calculate_IE_score()
+    all_results = []
+    
+    for json_file_path in json_files:
+        try:
+            # Count provenance
+            cell_count, total_count, ratio = count_provenance_and_total(str(json_file_path))
+            
+            # Evaluate metrics (assuming corresponding GT file exists)
+            gt_path = os.path.join("data/labels/info", json_file_path.name.replace('.jpg', ''))
+            
+            if os.path.exists(gt_path):
+                precision, recall, f1 = evaluate_after_provenance_filter(str(json_file_path), gt_path)
+                all_results.append({
+                    "file": json_file_path.name,
+                    "cell_count": cell_count,
+                    "total_count": total_count,
+                    "provenance_ratio": ratio,
+                    "precision": precision,
+                    "recall": recall,
+                    "f1": f1
+                })
+        except Exception as e:
+            print(f"Error processing {json_file_path.name}: {e}")
+    
+    # Compute averages
+    if all_results:
+        avg_cell_count = sum(r["cell_count"] for r in all_results) / len(all_results)
+        avg_total_count = sum(r["total_count"] for r in all_results) / len(all_results)
+        avg_provenance_ratio = sum(r["provenance_ratio"] for r in all_results) / len(all_results)
+        avg_precision = sum(r["precision"] for r in all_results) / len(all_results)
+        avg_recall = sum(r["recall"] for r in all_results) / len(all_results)
+        avg_f1 = sum(r["f1"] for r in all_results) / len(all_results)
+        
+        print(f"\nAverages across {len(all_results)} files:")
+        print(f"Avg Cell Count: {avg_cell_count:.2f}")
+        print(f"Avg Total Count: {avg_total_count:.2f}")
+        print(f"Avg Provenance Ratio: {avg_provenance_ratio:.2f}%")
+        print(f"Avg Precision: {avg_precision:.4f}")
+        print(f"Avg Recall: {avg_recall:.4f}")
+        print(f"Avg F1: {avg_f1:.4f}")
+        
+        return all_results
 
 if __name__ == "__main__":
-    main()
+    folder = "data/json"
+    main(folder)
+
+
