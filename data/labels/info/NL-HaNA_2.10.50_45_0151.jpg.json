@@ -1,0 +1,125 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Rouchloux",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Theodere",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "12-12-1796",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Ath",
+        "row": 2,
+        "cell": [
+          "t1c15",
+          "t1c15"
+        ],
+        "original_spans": [
+          "104:106",
+          "127:129"
+        ]
+      },
+      "last_residence": {
+        "value": "Ath",
+        "row": 2,
+        "cell": [
+          "t1c15",
+          "t1c15"
+        ],
+        "original_spans": [
+          "104:106",
+          "127:129"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Belgium",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "1 Leut",
+        "row": 2,
+        "cell": [
+          "t1c16",
+          "t1c16"
+        ],
+        "original_spans": [
+          "185:188",
+          "247:250"
+        ]
+      }
+    },
+    {},
+    {
+      "name": {
+        "basesurname": {
+          "value": "Fignage",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Willem",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "infix": {
+          "value": "du",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "not mentioned",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "not mentioned",
+        "row": 1,
+        "cell": "t1c7",
+        "original_spans": [
+          "0:9"
+        ]
+      },
+      "last_residence": {
+        "value": "not mentioned",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "country_of_nationality": {
+        "value": "not mentioned",
+        "row": 1,
+        "cell": "t1c10",
+        "original_spans": [
+          "476:484"
+        ]
+      },
+      "military_rank": {
+        "value": "1 Lieut",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      }
+    }
+  ]
+}

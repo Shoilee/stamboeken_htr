@@ -1,0 +1,103 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Vrieze",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Tobias Heikes",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "05-01-1788",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Appingedam",
+        "row": 2,
+        "cell": "t1c15",
+        "original_spans": [
+          "107:116"
+        ]
+      },
+      "last_residence": {
+        "value": "S'Hage",
+        "row": 2,
+        "cell": "t1c15",
+        "original_spans": [
+          "138:143"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Netherlands",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      }
+    },
+    {},
+    {
+      "name": {
+        "basesurname": {
+          "value": "Meerstraeten",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Pieter Bartholomeus",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "infix": {
+          "value": "van",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "21-11-1777",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Brusjel",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "123:129"
+        ]
+      },
+      "last_residence": {
+        "value": "(no information available)",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "country_of_nationality": {
+        "value": "Belgium",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "(no information available)",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      }
+    }
+  ]
+}

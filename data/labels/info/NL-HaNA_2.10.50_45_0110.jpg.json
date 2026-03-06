@@ -1,0 +1,111 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Blume",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Carl Luding",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "04-06-1796",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Brunswijk",
+        "row": 2,
+        "cell": "t1c15",
+        "original_spans": [
+          "138:146"
+        ]
+      },
+      "last_residence": {
+        "value": "Leyden",
+        "row": 2,
+        "cell": [
+          "t1c15",
+          "t1c16",
+          "t1c16"
+        ],
+        "original_spans": [
+          "167:172",
+          "297:302",
+          "379:384"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Nederland",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      }
+    },
+    {},
+    {
+      "name": {
+        "basesurname": {
+          "value": "Behm",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Peter",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "14-06-1785",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Luxemburg",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "96:104"
+        ]
+      },
+      "last_residence": {
+        "value": "Edem",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "126:129"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Luxembourg",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "2 Lieut",
+        "row": 1,
+        "cell": [
+          "t1c10",
+          "t1c10"
+        ],
+        "original_spans": [
+          "360:366",
+          "685:691"
+        ]
+      }
+    }
+  ]
+}

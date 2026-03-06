@@ -30,7 +30,6 @@ data/*
 !data/labels/
 /data/labels/sarah
 /data/labels/victor
-/data/labels/info/*
 /data/turtles
 /data/labels/NL*
 stamboek_*/

@@ -1,0 +1,56 @@
+{
+  "persons": [
+    {},
+    {},
+    {
+      "name": {
+        "basesurname": {
+          "value": "Josephus Hendrik",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Samuel",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "11-03-1789",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Wageningen",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "105:114"
+        ]
+      },
+      "last_residence": {
+        "value": "Rotterdam",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "134:142"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Netherlands",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "2nd Lieut",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      }
+    }
+  ]
+}
