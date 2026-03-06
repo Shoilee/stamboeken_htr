@@ -1,0 +1,104 @@
+
+id: https://w3id.org/linkml/examples/militarypostingevents
+name: militarypostingevents
+prefixes:
+  linkml: https://w3id.org/linkml/
+  militarypostingevents: https://w3id.org/linkml/examples/militarypostingevents/
+imports:
+  - linkml:types
+  - core
+default_range: string
+default_prefix: militarypostingevents
+
+classes:
+    EventDetailsCollection:
+        description: >-
+            A collection of one or more military posting (event) records,
+            each describing when a person joined a military unit,
+            in which loaction and with what rank and additional notes.
+        tree_root: true
+        attributes:
+            militarypostingdetails:
+                description: >-
+                    A semicolon-delimited list of individual military postings included in this set.  
+                    Include all details regarding the military unit, geographic location, time
+                    period, rank, and any changes in status, but only those explicitly stated in
+                    the text.  
+                    If a person held multiple ranks or served in multiple units during the same or
+                    different periods, each posting should be represented as a separate entry.  
+                    If a posting is mentioned without a location, or a rank is mentioned without a
+                    unit, these should still be captured as postings with the missing elements.
+                multivalued: true
+                inlined: true
+                range: MilitaryPostingEvent
+                annotations:
+                    prompt: >-
+                        Produce a semicolon-terminated list of military posting entries.
+                        Formatting rules:
+                        1. Each posting must appear on its own line.
+                        2. Within each posting, items must be separated by commas—not semicolons.
+                        3. Each posting must end with a semicolon ";"
+                        4. No extra text, no bullet points, no explanations.
+                        5. The final output must look exactly like this pattern:
+
+                        militarypostingdetails:
+                        <location> <unit>, <rank + start date>, <end date> ;
+                        <location> <unit>, <rank + start date>, <end date> ;
+                        <location> <unit>, <rank + start date>, <end date> ;
+
+                        6. Do not use semicolons inside a posting except at the end.
+                        7. Preserve the original wording exactly as in the input text.
+                    prompt.examples: Groot Bretagne Royaal Orange Battaillion Cadet den 1 Jany 1793 tot 30 November 1802 ; Frankrijk corps du Marine Opp Marin den 18 April 1811 tot 11 Sept 1811; 75 Equipage de haut bord den 11 Sept 1811 tot 4 Dec 1813; Nederlands Batn Inf Nat Mil n70 Sergeant den 21 Maart 1814 tot 24 April 1815; 2nd Lieut den 24 April 1815 tot 16 July 1815 .
+
+    
+    MilitaryPostingEvent:
+        description: >-
+            Represents an event where a person joined a military unit,
+            including details about the location, time period, and any additional notes.
+        attributes:
+            p144_joined_with:
+                description: >-
+                    The military unit that the person joined.
+                range: MilitaryUnit
+                annotations:
+                    prompt.examples: Royaal Orange Battaillion; corps du Marine Opp Marin; 75 Equipage; Batn Inf Nat Mil n70
+            p7_took_place_at:
+                description: >-
+                    Country name where the posting or service took place.
+                range: Place
+                annotations:
+                    prompt.examples: Groot Bretagne; Frankrijk; Nederlands
+            rank:
+                description: >-
+                    The rank held by the person during the posting.
+                range: string
+                annotations:
+                    prompt.examples: Cadet; Opp Marin; Sergeant; 2e Lieutant
+            p4_has_time_span:
+                description: >-
+                    The time period during which the service occurred.
+                range: string
+                annotations:
+                    prompt: "starting date -- ending date of the military posting or service (DD Month YYYY - DD Month YYYY)"
+                    prompt.examples: 1 Jany 1793 - 30 November 1802; 18 April 1811 - 11 Sept 1811; 11 Sept 1811 - 4 Dec 1813; 21 Maart 1814 - 24 April 1815
+            p3_has_note:
+                description: >-
+                    Additional notes or contextual information about the event.
+                range: string
+    
+    MilitaryUnit:
+        is_a: NamedEntity
+        attributes:
+            name:
+                description: >-
+                    The name of the military unit.
+                range: string
+    Place:
+        is_a: NamedEntity
+        attributes:
+            name:
+                description: >-
+                    The name of the geographical location.
+                range: string
+
+
