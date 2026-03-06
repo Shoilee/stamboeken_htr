@@ -25,6 +25,7 @@ image_samples/*.done
 image_samples/page
 ## Ignore data files
 data/*
+!data/examples/
 !data/schema/
 !data/labels/
 /data/labels/sarah
