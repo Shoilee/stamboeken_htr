@@ -1,0 +1,367 @@
+<?xml version='1.0' encoding='utf-8'?>
+<PcGts xmlns="http://schema.primaresearch.org/PAGE/gts/pagecontent/2013-07-15">
+  <Page imageFilename="NL-HaNA_2.10.50_45_0143.jpg">
+    <TableRegion id="r1" custom="structure {type:table}">
+      <TableCell id="cell_1" row="1" col="0" rowSpan="1" colSpan="2">
+        <Coords points="1020.7641,561.8517 1602.299,554.30664 1603.5929,1724.7869 1021.7864,1729.4714" />
+        <TextLine id="d6d1104d-1afe-40b3-8b2d-803eee86624f">
+          <Coords points="1032,1089 1105,1089 1173,1021 1197,1021 1205,1029 1213,1021 1264,1021 1273,1029 1322,1029 1331,1037 1345,1025 1360,1025 1428,1092 1519,1092 1547,1119 1568,1119 1568,1165 1308,1168 1300,1176 1257,1176 1205,1219 1160,1198 1054,1198 1032,1211" />
+          <Baseline points="1054,1155 1104,1160 1254,1160 1404,1155 1504,1156 1547,1154" />
+          <TextEquiv>
+            <Unicode>Hofman</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_1ae93ffd-514f-4bb1-82aa-a010e9b30d6c">
+          <Coords points="1173,1400 1249,1400 1280,1426 1297,1426 1297,1472 1206,1490 1173,1513" />
+          <Baseline points="1195,1485 1245,1475 1276,1461" />
+          <TextEquiv>
+            <Unicode>1ebb</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="d77a20bf-2b99-4478-b138-852b25927e17">
+          <Coords points="1035,1460 1098,1460 1098,1506 1035,1508" />
+          <Baseline points="1057,1495 1077,1495" />
+          <TextEquiv>
+            <Unicode>.</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_2" row="3" col="0" rowSpan="1" colSpan="2">
+        <Coords points="1021.7864,1729.4714 1603.5929,1724.7869 1596.6707,2899.368 1009.6215,2892.9946" />
+      </TableCell>
+      <TableCell id="cell_3" row="0" col="0" rowSpan="1" colSpan="3">
+        <Coords points="1017.8773,317.52948 2032.7113,303.63266 2033.2661,551.96313 1020.7641,561.8517" />
+        <TextLine id="line_2a3e0497-ad46-4c94-b692-391d4e6be58b">
+          <Coords points="1266,398 1639,398 1730,405 1746,421 1791,423 1791,469 1722,469 1701,486 1523,490 1266,482" />
+          <Baseline points="1288,461 1338,462 1488,462 1638,460 1738,456 1770,458" />
+          <TextEquiv>
+            <Unicode>Namen en Toenamen.</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_4" row="1" col="2" rowSpan="2" colSpan="1">
+        <Coords points="1602.299,554.30664 2033.2661,551.96313 2026.4401,1721.5863 1603.5929,1724.7869" />
+        <TextLine id="line_8cb51658-f242-4120-b276-a46c36c1830e">
+          <Coords points="1610,1005 1756,1005 1774,1020 1791,1019 1812,1039 1993,1040 2032,1047 2060,1024 2127,1023 2159,1055 2303,1055 2335,1083 2543,1083 2551,1091 2651,1091 2708,1103 2708,1149 2031,1153 2020,1164 1844,1165 1828,1177 1800,1181 1728,1181 1712,1168 1668,1168 1621,1211 1610,1211" />
+          <Baseline points="1632,1153 1682,1150 1882,1147 1982,1141 2032,1143 2582,1138 2682,1136 2687,1138" />
+          <TextEquiv>
+            <Unicode>Christoffel Geberen Den 13 October 1711</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_5" row="3" col="3" rowSpan="1" colSpan="1">
+        <Coords points="2026.4401,1721.5863 2748.181,1715.4675 2738.244,2894.8555 2017.3119,2896.6736" />
+      </TableCell>
+      <TableCell id="cell_6" row="3" col="6" rowSpan="1" colSpan="1">
+        <Coords points="3529.4685,1726.3003 3627.968,1727.5342 3619.6707,2901.8953 3522.154,2901.4998" />
+      </TableCell>
+      <TableCell id="cell_7" row="3" col="7" rowSpan="1" colSpan="1">
+        <Coords points="3627.968,1727.5342 3723.467,1728.9567 3717.971,2899.5117 3619.6707,2901.8953" />
+      </TableCell>
+      <TableCell id="cell_8" row="3" col="5" rowSpan="1" colSpan="1">
+        <Coords points="3432.0361,1726.0573 3529.4685,1726.3003 3522.154,2901.4998 3426.7434,2900.112" />
+      </TableCell>
+      <TableCell id="cell_9" row="1" col="7" rowSpan="2" colSpan="1">
+        <Coords points="3537.1638,556.62354 3634.9895,557.2688 3627.968,1727.5342 3529.4685,1726.3003" />
+        <TextLine id="line_5d930868-e1ef-49d8-abea-c0b7c53c080e">
+          <Coords points="3543,677 3628,678 3628,723 3543,723" />
+          <Baseline points="3565,714 3607,712" />
+          <TextEquiv>
+            <Unicode>,,</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_5cf662bc-bd31-4d70-9542-b504cf2f6416">
+          <Coords points="3541,750 3626,751 3625,798 3541,798" />
+          <Baseline points="3563,786 3605,785" />
+          <TextEquiv>
+            <Unicode>,,</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_849f5a5d-ff43-477f-9b07-3ba2f8161011">
+          <Coords points="3533,826 3610,826 3610,871 3533,869" />
+          <Baseline points="3555,861 3589,860" />
+          <TextEquiv>
+            <Unicode>,,</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_10" row="1" col="8" rowSpan="2" colSpan="1">
+        <Coords points="3634.9895,557.2688 3732.175,557.9389 3723.467,1728.9567 3627.968,1727.5342" />
+        <TextLine id="e21f624f-f331-49b3-b2f4-792cd8814a91">
+          <Coords points="3633,708 3671,672 3708,670 3708,716 3633,713" />
+          <Baseline points="3655,704 3687,705" />
+          <TextEquiv>
+            <Unicode>10</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_6655a101-9ae9-4ab1-8720-1a6cdb08fc76">
+          <Coords points="3630,777 3659,750 3718,755 3718,800 3678,800 3630,841" />
+          <Baseline points="3652,789 3697,789" />
+          <TextEquiv>
+            <Unicode>3</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="c88c6718-761e-4a32-a9cb-ca0685f5e6fd">
+          <Coords points="3709,735 3726,739 3751,762 3863,765 3863,811 3767,813 3732,847 3709,836" />
+          <Baseline points="3731,801 3781,804 3842,800" />
+          <TextEquiv>
+            <Unicode>Not1sin</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_4cfbd6d4-d529-423c-98ca-e4e00211f1f3">
+          <Coords points="3644,826 3716,827 3716,872 3644,879" />
+          <Baseline points="3666,870 3695,861" />
+          <TextEquiv>
+            <Unicode>29</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_11" row="1" col="6" rowSpan="2" colSpan="1">
+        <Coords points="3440.5874,555.855 3537.1638,556.62354 3529.4685,1726.3003 3432.0361,1726.0573" />
+        <TextLine id="line_3f51e0bd-e06d-403f-ab85-6901428e8889">
+          <Coords points="3458,741 3545,740 3545,786 3532,776 3523,785 3480,785 3458,793" />
+          <Baseline points="3480,777 3524,775" />
+          <TextEquiv>
+            <Unicode>1</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_12" row="1" col="3" rowSpan="2" colSpan="1">
+        <Coords points="2033.2661,551.96313 2748.99,542.937 2748.181,1715.4675 2026.4401,1721.5863" />
+        <TextLine id="d67657ba-e396-47d8-9a2a-d31b16b70dfe">
+          <Coords points="1940,734 2066,616 2095,624 2108,617 2185,687 2237,644 2452,643 2496,682 2563,682 2595,699 2611,691 2660,690 2660,736 2551,739 2528,759 2512,750 2197,755 2149,778 2061,778 2030,750 2006,763 1940,763" />
+          <Baseline points="1962,739 2012,734 2062,732 2212,733 2262,731 2362,733 2562,729 2612,725 2639,725" />
+          <TextEquiv>
+            <Unicode>Vader Johan Palentyjn</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_8cb51658-f242-4120-b276-a46c36c1830e">
+          <Coords points="1610,1005 1756,1005 1774,1020 1791,1019 1812,1039 1993,1040 2032,1047 2060,1024 2127,1023 2159,1055 2303,1055 2335,1083 2543,1083 2551,1091 2651,1091 2708,1103 2708,1149 2031,1153 2020,1164 1844,1165 1828,1177 1800,1181 1728,1181 1712,1168 1668,1168 1621,1211 1610,1211" />
+          <Baseline points="1632,1153 1682,1150 1882,1147 1982,1141 2032,1143 2582,1138 2682,1136 2687,1138" />
+          <TextEquiv>
+            <Unicode>Christoffel Geberen Den 13 October 1711</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_85518d89-0750-4bd4-a7ee-23b97130fbad">
+          <Coords points="2025,1247 2051,1238 2091,1238 2099,1246 2119,1246 2139,1266 2610,1266 2634,1290 2703,1290 2723,1310 2723,1357 2071,1358 2040,1388 2025,1377" />
+          <Baseline points="2047,1348 2147,1350 2447,1345 2597,1344 2697,1344 2702,1346" />
+          <TextEquiv>
+            <Unicode>Geboorte Plaats wenkbroek</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_371a5e5f-3b1d-4f78-9024-74d8bf147de0">
+          <Coords points="2011,1545 2028,1547 2081,1497 2105,1489 2125,1501 2272,1501 2284,1512 2324,1517 2547,1516 2563,1532 2588,1533 2588,1579 2069,1587 2030,1625 2011,1624" />
+          <Baseline points="2033,1558 2083,1565 2133,1567 2333,1567 2433,1570 2567,1568" />
+          <TextEquiv>
+            <Unicode>Laatste Wionplaats</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="bf12e0d0-71c5-4e36-be8c-eecee4959955">
+          <Coords points="2048,820 2177,819 2229,867 2569,863 2735,866 2752,876 2752,923 2739,918 2536,929 2512,953 2048,956" />
+          <Baseline points="2070,932 2270,928 2620,918 2720,914 2731,912" />
+          <TextEquiv>
+            <Unicode>Moeder Merethea Cleusenaer</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_13" row="1" col="9" rowSpan="2" colSpan="1">
+        <Coords points="3958.5618,557.3914 4254.1016,559.84436 4234.43,1728.6488 3950.6924,1729.6605" />
+        <TextLine id="line_7257e1fa-ffce-4ea7-8d38-5d9d60f646df">
+          <Coords points="3706,569 3725,560 3748,573 3760,565 3888,573 3896,565 3963,564 3983,584 4063,588 4079,603 4151,603 4171,619 4215,623 4235,640 4254,640 4310,588 4330,588 4350,603 4398,603 4426,631 4438,631 4453,644 4474,630 4491,630 4491,676 4298,676 4256,716 3706,708" />
+          <Baseline points="3728,653 3828,654 3878,653 3978,654 4028,653 4278,658 4470,665" />
+          <TextEquiv>
+            <Unicode>salarigten Winden Vaden</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_14" row="1" col="10" rowSpan="2" colSpan="1">
+        <Coords points="4254.1016,559.84436 4526.9346,563.3624 4514.0234,1732.015 4234.43,1728.6488" />
+      </TableCell>
+      <TableCell id="cell_15" row="3" col="5" rowSpan="1" colSpan="1">
+        <Coords points="2955.3398,1728.2806 3432.0361,1726.0573 3426.7434,2900.112 2777.9148,2897.8765" />
+      </TableCell>
+      <TableCell id="cell_16" row="3" col="2" rowSpan="1" colSpan="1">
+        <Coords points="1603.5929,1724.7869 2026.4401,1721.5863 2017.3119,2896.6736 1596.6707,2899.368" />
+      </TableCell>
+      <TableCell id="cell_17" row="3" col="9" rowSpan="1" colSpan="3">
+        <Coords points="3723.467,1728.9567 4514.0234,1732.015 4506.5557,2897.6548 3717.971,2899.5117" />
+      </TableCell>
+      <TableCell id="cell_18" row="1" col="9" rowSpan="2" colSpan="1">
+        <Coords points="3732.175,557.9389 3958.5618,557.3914 3950.6924,1729.6605 3723.467,1728.9567" />
+        <TextLine id="line_7257e1fa-ffce-4ea7-8d38-5d9d60f646df">
+          <Coords points="3706,569 3725,560 3748,573 3760,565 3888,573 3896,565 3963,564 3983,584 4063,588 4079,603 4151,603 4171,619 4215,623 4235,640 4254,640 4310,588 4330,588 4350,603 4398,603 4426,631 4438,631 4453,644 4474,630 4491,630 4491,676 4298,676 4256,716 3706,708" />
+          <Baseline points="3728,653 3828,654 3878,653 3978,654 4028,653 4278,658 4470,665" />
+          <TextEquiv>
+            <Unicode>salarigten Winden Vaden</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="c88c6718-761e-4a32-a9cb-ca0685f5e6fd">
+          <Coords points="3709,735 3726,739 3751,762 3863,765 3863,811 3767,813 3732,847 3709,836" />
+          <Baseline points="3731,801 3781,804 3842,800" />
+          <TextEquiv>
+            <Unicode>Not1sin</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_19" row="3" col="4" rowSpan="1" colSpan="1">
+        <Coords points="3729.29,303.03757 4528.08,310.65253 4526.9346,563.3624 3732.175,557.9389" />
+        <TextLine id="d850caf1-140d-441e-ba49-7e7c4f59a2d3">
+          <Coords points="3726,318 3733,316 3752,335 3788,339 4439,351 4451,363 4528,360 4528,408 4521,414 4451,419 4439,410 3968,398 3780,402 3726,447" />
+          <Baseline points="3748,382 3798,386 3898,385 3998,381 4098,384 4198,384 4448,391 4507,396" />
+          <TextEquiv>
+            <Unicode>(Gedane veldtogten, bekomene wonden,</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="d2f9d1c0-0b41-4592-8c94-32b2ebda74d3">
+          <Coords points="3774,402 4192,402 4240,410 4436,410 4448,419 4528,411 4541,423 4541,469 4368,474 3774,466" />
+          <Baseline points="3796,447 3846,448 3946,445 4046,447 4096,446 4196,450 4446,453 4496,455 4520,458" />
+          <TextEquiv>
+            <Unicode>uitstekende daden of bijzondere</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_02831425-4ec4-49b4-a850-f9928e424b1f">
+          <Coords points="3779,467 4065,474 4065,519 3988,519 3980,526 3913,530 3779,525" />
+          <Baseline points="3801,508 3851,511 4044,508" />
+          <TextEquiv>
+            <Unicode>verrigtingen.</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_20" row="0" col="8" rowSpan="1" colSpan="3">
+        <Coords points="2032.7113,303.63266 2763.174,296.82486 2748.99,542.937 2033.2661,551.96313" />
+        <TextLine id="line_9de5c061-18f6-4df5-831f-ccf7215db158">
+          <Coords points="2041,347 2171,364 2739,368 2739,414 2718,414 2702,429 2570,424 2542,433 2532,424 2041,420" />
+          <Baseline points="2063,409 2163,407 2263,402 2563,400 2663,401 2718,403" />
+          <TextEquiv>
+            <Unicode>Namen der Ouders, datum van Geboorte,</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="a23a149f-9883-48e9-ba8c-91e714bf28ca">
+          <Coords points="2081,420 2355,419 2363,427 2542,432 2570,423 2703,425 2703,469 2614,469 2602,480 2566,480 2558,488 2081,488" />
+          <Baseline points="2103,461 2153,464 2403,459 2682,458" />
+          <TextEquiv>
+            <Unicode>Geboorteplaats en laatste Woonplaats.</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_21" row="0" col="3" rowSpan="2" colSpan="1">
+        <Coords points="2957.5696,554.1434 3440.5874,555.855 3432.0361,1726.0573 2955.3398,1728.2806" />
+        <TextLine id="line_449a5493-31d4-4fd8-92c3-639b7db9a571">
+          <Coords points="2935,564 3244,560 3244,605 3223,605 3189,632 3064,631 3038,615 3027,620 3008,604 2985,605 2962,628 2935,628" />
+          <Baseline points="2957,592 3007,595 3107,596 3207,596 3223,594" />
+          <TextEquiv>
+            <Unicode>In dienst gepeeden</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_7115cded-8f6e-4b9c-bd72-133f7a100216">
+          <Coords points="2933,634 2951,634 2981,618 2996,630 3027,630 3045,618 3058,629 3083,633 3103,614 3111,618 3130,603 3187,603 3202,617 3273,613 3309,630 3334,628 3334,673 3321,669 3305,682 2973,681 2952,696 2933,696" />
+          <Baseline points="2955,653 3005,652 3105,655 3255,652 3305,660 3313,662" />
+          <TextEquiv>
+            <Unicode>rije Rigte 15: aguneermde</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_798e291c-c9f1-423c-9f94-b1f347e72f89">
+          <Coords points="3237,689 3272,692 3286,681 3307,681 3322,668 3369,687 3377,680 3403,684 3433,666 3433,711 3428,705 3389,711 3362,734 3342,718 3298,714 3263,742 3237,742" />
+          <Baseline points="3259,702 3359,698 3412,700" />
+          <TextEquiv>
+            <Unicode>ele an</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_6d90ee6d-71b2-4eb8-b4ce-1ee03c4ab308">
+          <Coords points="2785,747 2819,736 2866,696 2891,715 2897,710 2926,739 2938,728 2953,743 2967,736 3004,736 3019,747 3040,747 3051,739 3243,740 3260,723 3295,715 3345,719 3359,731 3380,719 3401,719 3417,735 3444,743 3439,794 3400,799 3375,794 3355,779 3324,797 3295,794 3279,806 3261,803 3226,831 3191,839 3019,838 2992,859 2959,859 2947,850 2871,850 2839,826 2819,826 2802,814 2785,819" />
+          <Baseline points="2807,762 2907,757 2957,796 3007,767 3057,769 3107,770 3207,764 3307,763 3357,767 3407,780 3423,777" />
+          <TextEquiv>
+            <Unicode>1 e e Jei</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="de32a3a5-ea99-4306-a8e9-4b1eceead8d0">
+          <Coords points="2919,851 2989,860 3017,839 3240,836 3287,796 3329,797 3362,785 3375,796 3407,796 3440,824 3440,870 3427,865 3408,872 3335,872 3256,923 3207,971 2919,971" />
+          <Baseline points="2941,910 2991,928 3041,926 3091,923 3141,923 3191,919 3241,876 3291,842 3341,844 3391,847 3419,859" />
+          <TextEquiv>
+            <Unicode>den 1e Jui e Jee</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_6b5f9cfc-efac-4a68-b659-4e9c5a8b2252">
+          <Coords points="3024,973 3220,969 3235,984 3264,985 3264,1032 3232,1053 3199,1053 3179,1033 3024,1033" />
+          <Baseline points="3046,1020 3146,1020 3196,1023 3243,1020" />
+          <TextEquiv>
+            <Unicode>etef van het</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="b618fc03-d82a-41f2-bf56-e6588b7dcf30">
+          <Coords points="2918,984 2996,985 3043,1010 3140,1010 3140,1056 3107,1056 3091,1068 3037,1063 3023,1075 3017,1070 3006,1081 2984,1085 2966,1086 2947,1073 2918,1073" />
+          <Baseline points="2940,1055 2990,1062 3040,1053 3090,1051 3119,1045" />
+          <TextEquiv>
+            <Unicode>Ceen a</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="ea126cf0-5002-4c77-8ebf-4dab3e44e818">
+          <Coords points="3075,1064 3089,1065 3097,1057 3168,1057 3179,1050 3229,1053 3244,1041 3265,1043 3262,1091 3229,1095 3220,1088 3142,1091 3075,1084" />
+          <Baseline points="3097,1078 3244,1078" />
+          <TextEquiv>
+            <Unicode>ane3</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_7f897c56-34bb-49a9-8595-66eca6715742">
+          <Coords points="2934,1073 2983,1085 3006,1081 3019,1070 3016,1120 2934,1114" />
+          <Baseline points="2956,1104 2998,1105" />
+          <TextEquiv>
+            <Unicode>volge</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_526277a0-7f8f-46b0-85a4-106a868313eb">
+          <Coords points="2945,1116 3002,1117 3014,1105 3046,1109 3073,1085 3133,1086 3148,1096 3158,1086 3220,1086 3234,1097 3253,1095 3253,1140 3101,1137 3074,1161 2945,1164" />
+          <Baseline points="2967,1129 3017,1127 3067,1130 3117,1130 3167,1127 3232,1129" />
+          <TextEquiv>
+            <Unicode>uet hij de quitemeet</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="d61e915f-46bc-498f-8e48-e72d5ebd4da2">
+          <Coords points="3092,1110 3114,1118 3235,1121 3235,1166 3092,1166" />
+          <Baseline points="3114,1152 3214,1155" />
+          <TextEquiv>
+            <Unicode>ad.</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_9134b66f-7930-4fb2-8bc4-18a776b961ee">
+          <Coords points="2985,1114 3092,1118 3092,1164 3082,1173 3071,1162 2985,1162" />
+          <Baseline points="3007,1154 3071,1152" />
+          <TextEquiv>
+            <Unicode>in du: lg</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="e7a8e2a8-db2c-4ca4-9b16-7fa72dd501a1">
+          <Coords points="2931,1163 2996,1159 3032,1186 3054,1190 3209,1190 3223,1182 3268,1193 3268,1238 3256,1230 3235,1234 3209,1254 3082,1257 3064,1265 3042,1251 2999,1254 2967,1230 2952,1241 2931,1241" />
+          <Baseline points="2953,1209 3003,1204 3053,1204 3153,1221 3203,1223 3247,1227" />
+          <TextEquiv>
+            <Unicode>duengegaapn ,, Schiff</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_2ea28777-375a-41b8-aae2-0114ce1b341d">
+          <Coords points="2933,1232 3033,1235 3057,1249 3083,1239 3090,1244 3101,1235 3157,1235 3188,1255 3197,1249 3258,1260 3279,1252 3279,1297 3259,1313 3194,1310 3178,1301 3167,1309 3159,1302 3103,1302 3087,1288 3070,1297 3044,1290 3037,1296 3028,1287 2995,1287 2955,1313 2933,1313" />
+          <Baseline points="2955,1277 3005,1277 3055,1280 3155,1280 3258,1285" />
+          <TextEquiv>
+            <Unicode>Wistumpe naan Jaca</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_57c3fa0d-1b1a-423d-8cdf-b1fee9a0e397">
+          <Coords points="2925,1314 2954,1314 2995,1286 3037,1286 3056,1297 3089,1290 3103,1302 3159,1302 3166,1309 3174,1302 3187,1305 3203,1289 3203,1335 3185,1352 3086,1352 3055,1379 2925,1378" />
+          <Baseline points="2947,1324 2997,1327 3182,1323" />
+          <TextEquiv>
+            <Unicode>den 1: aug:s In,,</Unicode>
+          </TextEquiv>
+        </TextLine>
+        <TextLine id="line_26d122fc-fc44-4618-b88a-95d492aaae20">
+          <Coords points="3233,1138 3263,1126 3350,1129 3372,1125 3385,1113 3430,1142 3430,1189 3421,1181 3393,1205 3286,1213 3260,1232 3233,1237" />
+          <Baseline points="3255,1178 3305,1163 3355,1164 3405,1171 3409,1178" />
+          <TextEquiv>
+            <Unicode>1 Je l17</Unicode>
+          </TextEquiv>
+        </TextLine>
+      </TableCell>
+      <TableCell id="cell_22" row="1" col="4" rowSpan="1" colSpan="1">
+        <Coords points="2744.5022,1724.7207 2788.7556,1720.7601 2777.641,2896.5688 2738.244,2894.8555" />
+      </TableCell>
+    </TableRegion>
+  </Page>
+</PcGts>
