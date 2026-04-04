@@ -1,0 +1,54 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Hofman",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Christoffel",
+          "row": 1,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "15-10-1797",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Werbroek",
+        "row": 1,
+        "cell": "t1c9",
+        "original_spans": [
+          "112:119"
+        ]
+      },
+      "last_residence": {
+        "value": "Not mentioned",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      },
+      "country_of_nationality": {
+        "value": "Nederland",
+        "row": 1,
+        "cell": "t1c10",
+        "original_spans": [
+          "158:166"
+        ]
+      },
+      "military_rank": {
+        "value": "2 Lieut",
+        "row": 1,
+        "cell": null,
+        "original_spans": null
+      }
+    }
+  ]
+}
