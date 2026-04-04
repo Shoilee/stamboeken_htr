@@ -335,55 +335,86 @@ def iou(poly1, poly2):
     union = poly1.union(poly2).area
     return inter / union if union > 0 else 0.0
 
+def hungarian_matching(gt_cells, pred_cells, iou_threshold=0.5):
+    """
+    Hungarian algorithm matching: assign predictions to GT cells maximizing total IoU
+    Returns: matches (gt_idx -> pred_idx), unmatched_gt, unmatched_pred
+    """
+    n_gt = len(gt_cells)
+    n_pred = len(pred_cells)
+    
+    # Cost matrix: negative IoU (maximize IoU = minimize -IoU)
+    cost_matrix = np.zeros((n_gt, n_pred))
+    
+    for i, (gt_key, gt_poly) in enumerate(gt_cells.items()):
+        for j, (pred_key, pred_poly) in enumerate(pred_cells.items()):
+            cost_matrix[i, j] = -iou(gt_poly, pred_poly)  # Negative for maximization
+    
+    # Hungarian assignment
+    row_ind, col_ind = linear_sum_assignment(cost_matrix)
+    
+    # Filter matches above threshold
+    matches = {}
+    unmatched_gt = []
+    unmatched_pred = []
+    
+    for gt_idx, pred_idx in zip(row_ind, col_ind):
+        iou_score = -cost_matrix[gt_idx, pred_idx]  # Recover positive IoU
+        if iou_score >= iou_threshold:
+            gt_key = list(gt_cells.keys())[gt_idx]
+            pred_key = list(pred_cells.keys())[pred_idx]
+            matches[gt_key] = {'pred_key': pred_key, 'iou': iou_score}
+        else:
+            unmatched_gt.append(list(gt_cells.keys())[gt_idx])
+            unmatched_pred.append(list(pred_cells.keys())[pred_idx])
+    
+    return matches, unmatched_gt, unmatched_pred
+
 def precision_recall_for_thresholds(gt_cells, pred_cells, iou_thresholds):
-    """Compute precision and recall per class over multiple IoU thresholds."""
+    """Compute precision and recall using Hungarian matching per threshold."""
     results = {}
-    for key, gt_poly in gt_cells.items():
-        pred_poly = pred_cells.get(key)
-        if pred_poly is None:
-            # no prediction for this cell
-            results[key] = {
-                "precision": [0.0] * len(iou_thresholds),
-                "recall": [0.0] * len(iou_thresholds),
-            }
-            continue
-
-        iou_score = iou(gt_poly, pred_poly)
-        precisions = []
-        recalls = []
-
-        for thr in iou_thresholds:
-            match = iou_score >= thr
-            precisions.append(1.0 if match else 0.0)
-            recalls.append(1.0 if match else 0.0)
-
-        results[key] = {
-            "precision": precisions,
-            "recall": recalls,
+    
+    # Global PR (not per-cell): TP/N_pred, TP/N_gt
+    for thr_idx, thr in enumerate(iou_thresholds):
+        # Single Hungarian matching gives definitive TP/FP assignments
+        matches, unmatched_gt, unmatched_pred = hungarian_matching(gt_cells, pred_cells, iou_threshold=thr)
+        
+        n_gt = len(gt_cells)
+        n_pred = len(pred_cells)
+        n_tp = len(matches)
+       
+        precision = n_tp / n_pred if n_pred > 0 else 0.0
+        recall = n_tp / n_gt if n_gt > 0 else 0.0
+        
+        results[f'thr_{thr:.2f}'] = {
+            'precision': precision,
+            'recall': recall,
+            'tp': n_tp,
+            'matches': matches
         }
-
+    
     return results
 
-def compute_mAP(gt_file, pred_file, thresholds=np.arange(0.5, 1.0, 0.05)):
+def compute_mAP(gt_file, pred_file, thresholds=np.arange(0.1, 1, 0.05)):
     gt_cells = load_cells(gt_file)
     pred_cells = load_cells(pred_file)
 
     results = precision_recall_for_thresholds(gt_cells, pred_cells, thresholds)
+    
+    # Extract PR points for AUC
+    precisions = [results[f'thr_{thr:.2f}']['precision'] for thr in thresholds]
+    recalls = [results[f'thr_{thr:.2f}']['recall'] for thr in thresholds]
+    
+    # 11-point interpolation or trapezoid AUC
+    from scipy.integrate import trapezoid
+    map_score = trapezoid(y=np.array(precisions)[::-1], x=np.array(recalls)[::-1])
+    
+    print(f"mAP@{thresholds[0]:.1f}-{thresholds[-1]:.1f}: {map_score:.4f}")
+    print(f"Matches: {len(results['thr_0.50']['matches'])}, "
+          f"Unmatched GT: {len(results['thr_0.50']['unmatched_gt']) if 'unmatched_gt' in results['thr_0.50'] else 0}")
+    
+    return map_score
 
-    aps = []
-    for key, vals in results.items():
-        # Average precision per class = mean over thresholds
-        ap = np.mean(vals["precision"])  # recall same since 1 GT per class
-        aps.append(ap)
-
-    mean_ap = np.mean(aps) if aps else 0.0
-
-    # print("Per-class average precision:")
-    # for key, vals in results.items():
-    #     print(
-    #         f"  Cell {key}: AP={np.mean(vals['precision']):.3f}, "
-    #         f"Mean IoU-based recall={np.mean(vals['recall']):.3f}"
-    #     )
-
-    # print(f"\nFinal Mean Average Precision (mAP): {mean_ap:.4f}")
-    return mean_ap
+# Usage
+# map_score, details = compute_mAP('gt_cells.json', 'pred_cells.json')
+    
