@@ -1,0 +1,254 @@
+{
+  "persons": [
+    {},
+    {},
+    {
+      "militarypostingdetails": [
+        {
+          "p144_joined_with": {
+            "value": "Groot Bretagne",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "163:176"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "(Not specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "rank": {
+            "value": "Cadet",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "01 January 1793 - 30 November 1802",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "(No additional notes)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Marine",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "320:325"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "Frankrijk",
+            "row": 1,
+            "cell": [
+              "t1c10",
+              "t1c12"
+            ],
+            "original_spans": [
+              "298:306",
+              "997:1005"
+            ]
+          },
+          "rank": {
+            "value": "(no rank specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "18 April 1811 - 11 September 1811",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "(no additional notes or contextual information)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Equipage de haut bord",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "397:417"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "None (no country name specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "rank": {
+            "value": "None (no rank specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "11 Sept 1811 - 4 Dec 1813",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "None (no additional notes or contextual information provided)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Nederlands Batn Inf.",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "501:520"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "(no country specified, assuming it's not applicable)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "rank": {
+            "value": "Sergeant",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "21 Maart 1814 - 24 April 1815",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "(no additional notes)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Nederlands Batn Inf.",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "501:520"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "[No country specified]",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "rank": {
+            "value": "2nd Lieut",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "24 April 1815 - 16 July 1815",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "[No additional notes specified]",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Batn Inf. Nat. Mil N48",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p7_took_place_at": {
+            "value": "(no country specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "rank": {
+            "value": "(no rank specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "16 July 1815 - 16 June 1817",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "(no additional notes)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        },
+        {
+          "p144_joined_with": {
+            "value": "Deport Batn",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "746:756"
+            ]
+          },
+          "p7_took_place_at": {
+            "value": "Voor de col N33.",
+            "row": 1,
+            "cell": "t1c10",
+            "original_spans": [
+              "758:773"
+            ]
+          },
+          "rank": {
+            "value": "(no rank specified)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p4_has_time_span": {
+            "value": "16 Juny 1817 - 3 Dec 1817",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          },
+          "p3_has_note": {
+            "value": "(no additional notes)",
+            "row": 1,
+            "cell": null,
+            "original_spans": null
+          }
+        }
+      ]
+    }
+  ]
+}
