@@ -6,6 +6,7 @@
 @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
 @prefix skos: <http://www.w3.org/2004/02/skos/core#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dc: <http://purl.org/dc/terms/> .
 
 ### Row Shape
 ex:RowShape a sh:NodeShape ;
@@ -16,7 +17,7 @@ ex:RowShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path skos:partOf ;
+        sh:path dc:partOf ;
         sh:class ex:Table ;
         sh:minCount 1 ;
     ] .
@@ -40,7 +41,7 @@ ex:CellShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path skos:partOf ;
+        sh:path dc:partOf ;
         sh:class ex:Row ;
         sh:minCount 1 ;
     ] .
@@ -58,7 +59,7 @@ ex:TextSpanShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path skos:partOf ;
+        sh:path dc:partOf ;
         sh:class ex:Row ;
         sh:minCount 1 ;
     ] .
