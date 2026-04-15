@@ -17,7 +17,7 @@ ex:RowShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path dc:partOf ;
+        sh:path dc:isPartOf ;
         sh:class ex:Table ;
         sh:minCount 1 ;
     ] .
@@ -41,7 +41,7 @@ ex:CellShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path dc:partOf ;
+        sh:path dc:isPartOf ;
         sh:class ex:Row ;
         sh:minCount 1 ;
     ] .
@@ -59,7 +59,7 @@ ex:TextSpanShape a sh:NodeShape ;
         sh:minCount 1 ;
     ] ;
     sh:property [
-        sh:path dc:partOf ;
+        sh:path dc:isPartOf ;
         sh:class ex:Row ;
         sh:minCount 1 ;
     ] .
