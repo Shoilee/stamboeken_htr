@@ -2,13 +2,126 @@
   "persons": [
     {
       "name": {
+        "label": {
+          "value": "Adolphus van de Sande",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        },
         "basesurname": {
-          "value": "Hofman",
-          "row": 1,
+          "value": "Sande",
+          "row": 2,
           "cell": null,
           "original_spans": null
         },
         "firstnames": {
+          "value": "Adolphus",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        },
+        "infix": {
+          "value": "van de",
+          "row": 2,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "10-03-1815",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "Veldrigten Winden Waden",
+        "row": 2,
+        "cell": [
+          "cell_15",
+          "cell_17"
+        ],
+        "original_spans": [
+          1364,
+          "46:68",
+          "74:96"
+        ]
+      },
+      "last_residence": {
+        "value": "Veldrigten Winden Waden",
+        "row": 2,
+        "cell": [
+          "cell_15",
+          "cell_17"
+        ],
+        "original_spans": [
+          1364,
+          "46:68",
+          "74:96"
+        ]
+      },
+      "country_of_nationality": {
+        "value": "Netherlands",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "Leave blank (no rank mentioned)",
+        "row": 2,
+        "cell": null,
+        "original_spans": null
+      }
+    },
+    {
+      "name": {
+        "basesurname": {
+          "value": "Winden",
+          "row": 3,
+          "cell": null,
+          "original_spans": null
+        },
+        "firstnames": {
+          "value": "Veldrigten",
+          "row": 3,
+          "cell": null,
+          "original_spans": null
+        }
+      },
+      "date_of_birth": {
+        "value": "15-07-1815",
+        "row": 3,
+        "cell": null,
+        "original_spans": null
+      },
+      "birth_place": {
+        "value": "(not provided)",
+        "row": 3,
+        "cell": null,
+        "original_spans": null
+      },
+      "last_residence": {
+        "value": "(not provided)",
+        "row": 3,
+        "cell": null,
+        "original_spans": null
+      },
+      "country_of_nationality": {
+        "value": "(not provided)",
+        "row": 3,
+        "cell": null,
+        "original_spans": null
+      },
+      "military_rank": {
+        "value": "(no rank mentioned)",
+        "row": 3,
+        "cell": null,
+        "original_spans": null
+      }
+    },
+    {},
+    {
+      "name": {
+        "basesurname": {
           "value": "Christoffel",
           "row": 1,
           "cell": null,
@@ -16,35 +129,33 @@
         }
       },
       "date_of_birth": {
-        "value": "15-10-1797",
+        "value": "13-10-1711",
         "row": 1,
         "cell": null,
         "original_spans": null
       },
       "birth_place": {
-        "value": "Werbroek",
+        "value": "Plaats",
         "row": 1,
-        "cell": "t1c9",
+        "cell": [
+          "cell_12",
+          "cell_12"
+        ],
         "original_spans": [
-          "112:119"
+          "63:68",
+          "92:97"
         ]
       },
       "last_residence": {
-        "value": "Not mentioned",
+        "value": "Moeder",
         "row": 1,
-        "cell": null,
-        "original_spans": null
-      },
-      "country_of_nationality": {
-        "value": "Nederland",
-        "row": 1,
-        "cell": "t1c10",
+        "cell": "cell_12",
         "original_spans": [
-          "158:166"
+          "99:104"
         ]
       },
-      "military_rank": {
-        "value": "2 Lieut",
+      "country_of_nationality": {
+        "value": "Netherlands",
         "row": 1,
         "cell": null,
         "original_spans": null
