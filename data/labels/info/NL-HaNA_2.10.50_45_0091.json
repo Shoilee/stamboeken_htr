@@ -1,0 +1,29 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Josephus Hendrik"
+        },
+        "firstnames": {
+          "value": "Samuel"
+        }
+      },
+      "date_of_birth": {
+        "value": "11-03-1789"
+      },
+      "birth_place": {
+        "value": "Wageningen"
+      },
+      "last_residence": {
+        "value": "Rotterdam"
+      },
+      "country_of_nationality": {
+        "value": "Netherlands"
+      },
+      "military_rank": {
+        "value": "2nd Lieut"
+      }
+    }
+  ]
+}

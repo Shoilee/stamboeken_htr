@@ -1,0 +1,57 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Rouchloux"
+        },
+        "firstnames": {
+          "value": "Theodere"
+        }
+      },
+      "date_of_birth": {
+        "value": "12-12-1796"
+      },
+      "birth_place": {
+        "value": "Ath"
+      },
+      "last_residence": {
+        "value": "Ath"
+      },
+      "country_of_nationality": {
+        "value": "Belgium"
+      },
+      "military_rank": {
+        "value": "1 Leut"
+      }
+    },
+    {
+      "name": {
+        "basesurname": {
+          "value": "Fignage"
+        },
+        "firstnames": {
+          "value": "Willem"
+        },
+        "infix": {
+          "value": "du"
+        }
+      },
+      "date_of_birth": {
+        "value": "not mentioned"
+      },
+      "birth_place": {
+        "value": "not mentioned"
+      },
+      "last_residence": {
+        "value": "not mentioned"
+      },
+      "country_of_nationality": {
+        "value": "not mentioned"
+      },
+      "military_rank": {
+        "value": "1 Lieut"
+      }
+    }
+  ]
+}

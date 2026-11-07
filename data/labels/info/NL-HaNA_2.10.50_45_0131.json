@@ -1,0 +1,54 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Vrieze"
+        },
+        "firstnames": {
+          "value": "Tobias Heikes"
+        }
+      },
+      "date_of_birth": {
+        "value": "05-01-1788"
+      },
+      "birth_place": {
+        "value": "Appingedam"
+      },
+      "last_residence": {
+        "value": "S'Hage"
+      },
+      "country_of_nationality": {
+        "value": "Netherlands"
+      }
+    },
+    {
+      "name": {
+        "basesurname": {
+          "value": "Meerstraeten"
+        },
+        "firstnames": {
+          "value": "Pieter Bartholomeus"
+        },
+        "infix": {
+          "value": "van"
+        }
+      },
+      "date_of_birth": {
+        "value": "21-11-1777"
+      },
+      "birth_place": {
+        "value": "Brusjel"
+      },
+      "last_residence": {
+        "value": "(no information available)"
+      },
+      "country_of_nationality": {
+        "value": "Belgium"
+      },
+      "military_rank": {
+        "value": "(no information available)"
+      }
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Blume"
+        },
+        "firstnames": {
+          "value": "Carl Luding"
+        }
+      },
+      "date_of_birth": {
+        "value": "04-06-1796"
+      },
+      "birth_place": {
+        "value": "Brunswijk"
+      },
+      "last_residence": {
+        "value": "Leyden"
+      },
+      "country_of_nationality": {
+        "value": "Nederland"
+      }
+    },
+    {
+      "name": {
+        "basesurname": {
+          "value": "Behm"
+        },
+        "firstnames": {
+          "value": "Peter"
+        }
+      },
+      "date_of_birth": {
+        "value": "14-06-1785"
+      },
+      "birth_place": {
+        "value": "Luxemburg"
+      },
+      "last_residence": {
+        "value": "Edem"
+      },
+      "country_of_nationality": {
+        "value": "Luxembourg"
+      },
+      "military_rank": {
+        "value": "2 Lieut"
+      }
+    }
+  ]
+}

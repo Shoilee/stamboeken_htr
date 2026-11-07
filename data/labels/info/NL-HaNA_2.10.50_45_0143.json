@@ -1,0 +1,29 @@
+{
+  "persons": [
+    {
+      "name": {
+        "basesurname": {
+          "value": "Hofman"
+        },
+        "firstnames": {
+          "value": "Christoffel"
+        }
+      },
+      "date_of_birth": {
+        "value": "15-10-1797"
+      },
+      "birth_place": {
+        "value": "Werbroek"
+      },
+      "last_residence": {
+        "value": "Not mentioned"
+      },
+      "country_of_nationality": {
+        "value": "Nederland"
+      },
+      "military_rank": {
+        "value": "2 Lieut"
+      }
+    }
+  ]
+}
