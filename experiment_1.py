@@ -16,7 +16,7 @@ from src.metrics import (
     infomration_extraction_precision_recall,
     best_match_similarity
 )
-from src.person_info_extraction import extract_info_LLM
+# from src.person_info_extraction import extract_info_LLM
 from src.person_info_extraction_ontogpt import extract_person_info as information_extractor
 from statistics import mean
 
