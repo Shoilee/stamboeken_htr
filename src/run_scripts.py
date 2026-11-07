@@ -5,6 +5,8 @@ import json
 import time
 import subprocess
 import argparse
+import traceback
+import shutil
 from bs4 import BeautifulSoup
 
 from helpers import copy_file, delete_file, read_html_file, write_html_file, write_json_file, read_json_file
@@ -56,21 +58,20 @@ def reconstruct_table_pipeline(IMAGE_NAME, cells_bounding_box, cells_structure, 
 # =========================
 # INFORMATION EXTRACTION
 # =========================
-def extract_persons_from_html(constructed_html):
-    """Extract persons from reconstructed HTML using LLM/regex."""
-    from person_info_extraction import extract_info_LLM
+def extract_persons_from_html(constructed_html, json_output, temp_dir, schema_path, llm_model):
+    from person_info_extraction_ontogpt import extract_person_info as information_extractor
 
     soup = BeautifulSoup(constructed_html, 'html.parser')
     rows = soup.find_all('tr')
 
-    persons = []
-    logical_rows, rowspans = [], {}
+    # --- Step 1: make a grid keeping track of rowspans ---
+    logical_rows = []
+    rowspans = {}  # {(col_idx): [remaining_rows, cell_content]}
 
     for r_idx, tr in enumerate(rows):
         current_row = []
         to_remove = []
 
-        # Fill carried-over rowspans
         for col_idx, (remaining, cell) in rowspans.items():
             current_row.append(cell)
             rowspans[col_idx][0] -= 1
@@ -79,33 +80,70 @@ def extract_persons_from_html(constructed_html):
         for col_idx in to_remove:
             del rowspans[col_idx]
 
-        # New cells
         c_idx = 0
         for td in tr.find_all('td'):
-            while c_idx in rowspans:
+            while any(k == c_idx for k in rowspans): 
                 c_idx += 1
+            text = td.get_text(" ", strip=True)
+            cell_id = td.get('id')
+            r_idx = int(td.get('row', r_idx))
+            c_idx = int(td.get('col', c_idx))
+            rowspan = int(td.get('rowspan', 1))
+            colspan = int(td.get('colspan', 1))
+
             cell_data = {
-                'text': td.get_text(" ", strip=True),
-                'id': td.get('id'),
-                'row': int(td.get('row', r_idx)),
-                'col': int(td.get('col', c_idx)),
-                'rowspan': int(td.get('rowspan', 1)),
-                'colspan': int(td.get('colspan', 1))
+                'text': text,
+                'id': cell_id,
+                'row': r_idx,
+                'col': c_idx,
+                'rowspan': rowspan,
+                'colspan': colspan
             }
+
+            # Place cell in current row
             current_row.append(cell_data)
-            if cell_data['rowspan'] > 1:
-                rowspans[c_idx] = [cell_data['rowspan'] - 1, cell_data]
-            c_idx += cell_data['colspan']
+
+            # Store for future rows if rowspan > 1
+            if rowspan > 1:
+                rowspans[c_idx] = [rowspan - 1, cell_data]
+
+            c_idx += colspan
+
         logical_rows.append(current_row)
 
-    # Person extraction
-    for row in logical_rows:
-        person = json.loads(extract_info_LLM(row))
-        if person and not all(v['value'] is None for v in person.values()):
-            persons.append(person)
+    
+    os.makedirs(temp_dir, exist_ok=True)
 
-    unique_persons = {json.dumps(p, sort_keys=True) for p in persons}
-    return {"persons": [json.loads(p) for p in unique_persons]}
+
+    try:
+        for i, row in enumerate(logical_rows):
+            print(f"Processing row {i+1}/{len(logical_rows)}")
+            temp_file = f"person_{i}.json"
+            try:
+                information_extractor(i, row, schema_path=schema_path, json_output=os.path.join(temp_dir, temp_file), temp_dir=temp_dir, llm_model=llm_model)
+            except Exception as e:
+                print(f" ❌ Error processing row {i}: {e}")
+                traceback.print_exc()
+                continue
+
+        persons = []
+
+        for filename in os.listdir(temp_dir):
+            if filename.endswith(".json") and filename.startswith("person_"):
+                with open(os.path.join(temp_dir, filename), 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    # each temp file is expected to be {'persons': [...]}
+                    person = data.get("persons", [])
+                    if isinstance(persons, list):
+                        persons.extend(person)
+                    elif person:
+                        persons.append(persons)
+
+        with open(json_output, 'w', encoding='utf-8') as f:
+            json.dump({"persons": persons}, f, indent=2, ensure_ascii=False)   
+
+    finally: 
+        shutil.rmtree(TEMP_DIR, ignore_errors=True)
 
 def calculate_TEDS(ground_truth_html, predicted_html):
     """Calculate TEDS and TEDS-Struct similarity."""
@@ -159,6 +197,7 @@ def transkribus_construct_table(data_path, output_path):
 
         pagexml_file = os.path.join(directory, IMAGE_NAME+ ".xml")
         output_file = os.path.join(output_path, IMAGE_NAME + ".html")
+        # print(f"Converting {pagexml_file} to {output_file}...")
         pagexml_to_html(pagexml_file, output_file)
 
 def llm_construct_table(data_path, output_path):
@@ -297,24 +336,29 @@ if __name__ == "__main__":
         llm_multi_construct_table(data_path, output_path) 
 
 
-    for filename in os.listdir(os.path.join(data_path, "images")):
+    for filename in os.listdir(os.path.join(data_path, "images"))[48:]:  # start from 49th image for testing
         if not filename.endswith('.jpg'):
             continue
 
         IMAGE_NAME = filename
-        constructed_html = read_html_file(f"data/tables/html/{IMAGE_NAME}.html")
-        label_html = read_html_file(f"data/labels/{IMAGE_NAME.replace('.jpg', '.html')}")
-        calculate_TEDS(label_html, constructed_html)
+        print(f"Processing {IMAGE_NAME}...")
+        constructed_html = read_html_file(f"{data_path}/tables/html/{IMAGE_NAME}.html")
+        # label_html = read_html_file(f"{data_path}/labels/tables/{IMAGE_NAME}.html")
+        # calculate_TEDS(label_html, constructed_html)
 
-        print(f"Completed evaluation for {IMAGE_NAME}\n")
+        # print(f"Completed evaluation for {IMAGE_NAME}\n")
 
         # =========================
         # INFORMATION EXTRACTION
         # =========================
-        persons_json = extract_persons_from_html(constructed_html)
-        write_json_file(f"{data_path}/json/{IMAGE_NAME}.json", persons_json)
+        TEMP_DIR = f"{data_path}/temp"
+        SCHEMA_PATH = f"{data_path}/schema/personbasicinfo.yaml"
+        LLM_MODEL = "ollama/llama3"
+        JSON_FILE = f"{data_path}/json/{IMAGE_NAME}.json"
+        
+        persons_json = extract_persons_from_html(constructed_html, json_output=JSON_FILE, temp_dir=TEMP_DIR, schema_path=SCHEMA_PATH, llm_model=LLM_MODEL)
 
-        from metrics import best_match_similarity
-        pred = read_json_file(f"data/json/{IMAGE_NAME}.json")
-        true = read_json_file(f"data/labels/{IMAGE_NAME.replace('.jpg', '.json')}")
-        print(f"Information similarity score: {best_match_similarity(true.get('persons', []), pred.get('persons', [])) : .4f}\n")
+        # from metrics import best_match_similarity
+        # pred = read_json_file(f"{data_path}/json/{IMAGE_NAME}.json")
+        # true = read_json_file(f"{data_path}/labels/{IMAGE_NAME.replace('.jpg', '.json')}")
+        # print(f"Information similarity score: {best_match_similarity(true.get('persons', []), pred.get('persons', [])) : .4f}\n")
